@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <report
+        id="report_custom_invoice_print"
+        model="account.move"
+        string="Factura sin cabecera"
+        name="accounting_invoicing_custom.report_custom_invoice"
+        file="accounting_invoicing_custom.report_custom_invoice"
+        report_type="qweb-pdf"/>
+
+    <!--<record id="report_fichatecnica_print" model="ir.actions.report">
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+     <template id="report_template_fichatecnica_print">
+        <t t-call="web.external_layout">
+        <t t-call="web.external_layout_standard">
+            <div class="page">
+                
+
+            </div>
+        </t>
+    </template>-->
+</odoo>
