@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <template id="external_layout_clean_custom" inherit_id="web.external_layout_clean">
+        <template id="external_layout_boxed_custom" inherit_id="web.external_layout_boxed">
 			
 			<xpath expr="//div[@t-attf-class='header o_company_#{company.id}_layout']" position="replace">
 				<div t-attf-class="header o_company_#{company.id}_layout">
