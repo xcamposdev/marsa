@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <report
+        id="report_custom_invoice_print"
+        model="account.move"
+        string="Factura sin cabecera"
+        name="account_invoicing_custom.report_custom_invoice"
+        file="account_invoicing_custom.report_custom_invoice"
+        report_type="qweb-pdf"/>
+
+</odoo>
