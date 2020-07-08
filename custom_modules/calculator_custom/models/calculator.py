@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from odoo import api, fields, models, exceptions
+import copy
+from decimal import Decimal
+from odoo import api, fields, models, exceptions, _
 
 _logger = logging.getLogger(__name__)
 
@@ -10,12 +12,12 @@ class calculator_custom_0(models.Model):
     
     _inherit = 'sale.order'
 
-    ENCIMERA = "Encimera"
-    APLACADO = "Aplacado"
+    ENCIMERA = "Material"
+    APLACADO = "Material"
     SERVICIO = "Servicio"
-    ZOCALO = "Zocalo"
+    ZOCALO = "Material"
     CANTO = "Canto"
-    OPERACION = "Operacion"
+    OPERACION = "Operaciones"
 
     SECTION_ENCIMERA = "Seccion Encimera"
     SECTION_APLACADO = "Seccion Aplacado"
@@ -32,10 +34,11 @@ class calculator_custom_0(models.Model):
     custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
     
       
-    # @api.onchange('x_studio_oportunidad')
-    # def _onchange_x_studio_oportunidad(self):
-    #     self.partner_id = self.x_studio_oportunidad.partner_id
-
+    @api.onchange('x_studio_oportunidad')
+    def _onchange_x_studio_oportunidad(self):
+        self.partner_id = self.x_studio_oportunidad.partner_id
+        #self.partner_shipping_id = self.x_studio_oportunidad.x_studio_direccin_de_envo.id
+        
     @api.onchange('pricelist_id')
     def _onchange_pricelist_id(self):
         for rec in self:
@@ -79,40 +82,6 @@ class calculator_custom_0(models.Model):
         res.update({'order_line': lines })
         return res
 
-    @api.onchange('custom_encimera')
-    def _onchange_custom_encimera(self):
-        # Get Or Create Seccion
-        exist_section = self.exists_section_in_order_line('line_section', self.SECTION_ENCIMERA)
-        if(exist_section == False):
-            lines = []
-            vals = {
-                'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA,
-                'display_type': 'line_section',
-                'name': self.SECTION_ENCIMERA,
-            }
-            lines.append([0,0,vals])
-            self.order_line = lines
-        
-        # Add line
-        exist_product = self.exists_product_in_order_line(self.SECTION_ENCIMERA)
-        if(self.order_line):
-            lines = []
-            for line in self.order_line:
-                # lines.append([0,0,line])
-                if(exist_product):
-                    te=""
-                    # search_var = self.search([('staff_age','=',0)])
-                    # search_var.write({ 
-                    #     'stud_ids': [(0,0, {'reg_no':4200,'stud_email':'anbulove@gmail.com','stud_phone':'9788987689'})]
-                else:
-                    if(line.display_type == 'line_section' and line.name == self.SECTION_ENCIMERA):
-                        vals = {
-                            'product_id': self.custom_encimera.id,
-                            'product_uom_qty': 1,
-                        }
-                        lines.append([0,0,vals])
-            self.order_line = lines
-
     def exists_section_in_order_line(self, _type, _name):        
         exist = False
         if(self.order_line):
@@ -121,40 +90,256 @@ class calculator_custom_0(models.Model):
                     exist = True
         return exist
 
-    def exists_product_in_order_line(self, _product_id):        
+    def create_section_in_order_line(self, selection_text):
+        # Get Or Create Seccion
+        exist_section = self.exists_section_in_order_line('line_section', selection_text)
+        if(exist_section == False):
+            lines = []
+            vals = {
+                'display_type': 'line_section',
+                'name': selection_text,
+            }
+            lines.append([0,0,vals])
+            self.order_line = lines        
+
+    def exists_product_in_order_line(self, _product_id, selection_text):
+        is_section = False
         exist = False
         if(self.order_line):
             for _line in self.order_line:
-                if(_line.product_id == _product_id):
-                    exist = True
+                if(is_section == False and _line.name == selection_text and _line.display_type == 'line_section'):
+                    is_section = True
+                if(is_section == True):
+                    if(_line.product_id.id == _product_id):
+                        exist = True
         return exist
 
-    # SECTION_ENCIMERA = "Seccion Encimera"
-    # SECTION_APLACADO = "Seccion Aplacado"
-    # SECTION_SERVICIO = "Seccion Servicio"
-    # SECTION_ZOCALO = "Seccion Zocalo"
-    # SECTION_CANTO = "Seccion Canto"
-    # SECTION_OPERACION = "Seccion Operacion"
+    def add_update_line(self, selection_id, selection_text):
+        exist_product = self.exists_product_in_order_line(selection_id, selection_text)
+        lines = []
+        is_created = exist_product
+        pos = 0
+        pos_new_record = 0
+        for line in self.order_line:
+            pos = pos + 1
+            lines.append({ 
+                'product_id': line.product_id.id or False,
+                'name': line.name,
+                'tax_id': line.tax_id,
+                'display_type': line.display_type or False,
+                'product_uom_qty': line.product_uom_qty,
+                'product_uom': line.product_uom,
+                'x_studio_unidades': line.x_studio_unidades,
+                'x_studio_largo_cm_1': line.x_studio_largo_cm_1,
+                'x_studio_ancho_cm': line.x_studio_ancho_cm,
+                'discount': line.discount,
+                'price_unit': line.price_unit,
+                'price_subtotal': line.price_subtotal
+                })
+            if(is_created == False and line.display_type == 'line_section' and line.name == selection_text):
+                pos_new_record = pos
+                lines.append({
+                    'product_id': False,
+                    'name': False,
+                    'tax_id': False,
+                    'display_type': False,
+                    'product_uom_qty': 0,
+                    'product_uom': False,
+                    'x_studio_unidades': 0,
+                    'x_studio_largo_cm_1': 0,
+                    'x_studio_ancho_cm': 0,
+                    'discount': 0,
+                    'price_unit': 0,
+                    'price_subtotal': 0
+                    })
+                is_created = True
 
+        self.order_line = [(5,0,0)]
+        for _line in lines:
+            self.order_line = [(0,0,_line)]
         
+        if(not exist_product):
+            self.order_line[pos_new_record].product_id = selection_id
+            self.order_line[pos_new_record].product_id_change()
+        else:
+            for line in self.order_line:
+                if(line.product_id.id == selection_id):
+                    quantity = line.product_uom_qty + 1
+                    line.update({'product_uom_qty': quantity})
+
+    
+        
+    @api.onchange('custom_encimera')
+    def _onchange_custom_encimera(self):
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_ENCIMERA)
+        
+        # Add or Update line
+        if(self.custom_encimera and self.order_line):
+            self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA)
+
+
 
     @api.onchange('custom_aplacado')
     def _onchange_custom_aplacado(self):
-        test = ""
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_APLACADO)
+        
+        # Add or Update line
+        if(self.custom_aplacado and self.order_line):
+            self.add_update_line(self.custom_aplacado.id, self.SECTION_APLACADO)
 
     @api.onchange('custom_servicio')
     def _onchange_custom_servicio(self):
-        test = ""
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_SERVICIO)
+        
+        # Add or Update line
+        if(self.custom_servicio and self.order_line):
+            self.add_update_line(self.custom_servicio.id, self.SECTION_SERVICIO)
 
     @api.onchange('custom_zocalo')
     def _onchange_custom_zocalo(self):
-        test = ""
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_ZOCALO)
+        
+        # Add or Update line
+        if(self.custom_zocalo and self.order_line):
+            self.add_update_line(self.custom_zocalo.id, self.SECTION_ZOCALO)
 
     @api.onchange('custom_canto')
     def _onchange_custom_canto(self):
-        test = ""
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_CANTO)
+        
+        # Add or Update line
+        if(self.custom_canto and self.order_line):
+            self.add_update_line(self.custom_canto.id, self.SECTION_CANTO)
 
     @api.onchange('custom_operacion')
     def _onchange_custom_operacion(self):
-        test = ""
-    
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_OPERACION)
+        
+        # Add or Update line
+        if(self.custom_operacion and self.order_line):
+            self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION)
+
+
+    @api.model
+    def create(self, vals):
+        vals['custom_encimera'] = False
+        vals['custom_aplacado'] = False
+        vals['custom_servicio'] = False
+        vals['custom_zocalo'] = False
+        vals['custom_canto'] = False
+        vals['custom_operacion'] = False
+        main_line_remove = []
+
+        # Check If exist another cliente
+        clients = []
+        clients.append(vals.get('partner_id'))
+        if(vals['order_line']):
+            for line in vals['order_line']:
+                if(line[2]['product_id']):
+                    data = self.env['product.pricelist.item'].search(\
+                        [('pricelist_id','=',vals['pricelist_id']),('product_tmpl_id','=', line[2]['product_id'])])
+                    if(data):
+                        for product_list_item in data:
+                            if(product_list_item.x_studio_presupuestar_a):
+                                if(product_list_item.x_studio_presupuestar_a.id not in clients):
+                                    clients.append(product_list_item.x_studio_presupuestar_a.id)
+
+        # save custom
+        for client in clients:
+            _record_vals = copy.deepcopy(vals)
+
+            if(client != _record_vals['partner_id']):
+                _record_vals['partner_id'] = client
+
+                if _record_vals.get('name', _('New')) == _('New'):
+                    seq_date = None
+                if 'date_order' in _record_vals:
+                    seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(_record_vals['date_order']))
+                if 'company_id' in _record_vals:
+                    _record_vals['name'] = self.env['ir.sequence'].with_context(force_company=_record_vals['company_id']).next_by_code(
+                        'sale.order', sequence_date=seq_date) or _('New')
+                else:
+                    _record_vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
+
+                # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
+                if any(f not in _record_vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+                    partner = self.env['res.partner'].browse(client)
+                    addr = partner.address_get(['delivery', 'invoice'])
+                    _record_vals['partner_invoice_id'] = _record_vals.setdefault('partner_invoice_id', addr['invoice'])
+                    _record_vals['partner_shipping_id'] = _record_vals.setdefault('partner_shipping_id', addr['delivery'])
+                    _record_vals['pricelist_id'] = _record_vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
+
+                # Update Price and remove line
+                line_remove = []
+                for i in range(len(_record_vals['order_line'])):
+                    product_id = _record_vals['order_line'][i][2]['product_id']
+                    if(product_id):
+                        data = self.env['product.pricelist.item'].search(\
+                            [('pricelist_id','=',vals['pricelist_id']),('product_tmpl_id','=',product_id),('x_studio_presupuestar_a','=',client)], limit=1)
+                        if(data):
+                            _record_vals['order_line'][i][2]['price_unit'] = data.fixed_price
+                            main_line_remove.append(i)
+                        else:
+                            line_remove.append(i)
+                for i in line_remove:
+                    del _record_vals['order_line'][i]
+                super(calculator_custom_0, self).create(_record_vals)
+
+        #save principal
+        if vals.get('name', _('New')) == _('New'):
+            seq_date = None
+            if 'date_order' in vals:
+                seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
+            if 'company_id' in vals:
+                vals['name'] = self.env['ir.sequence'].with_context(force_company=vals['company_id']).next_by_code(
+                    'sale.order', sequence_date=seq_date) or _('New')
+            else:
+                vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
+
+        # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
+        if any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
+            partner = self.env['res.partner'].browse(vals.get('partner_id'))
+            addr = partner.address_get(['delivery', 'invoice'])
+            vals['partner_invoice_id'] = vals.setdefault('partner_invoice_id', addr['invoice'])
+            vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
+            vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
+
+        for i in main_line_remove:
+            del vals['order_line'][i]
+
+        result = super(calculator_custom_0, self).create(vals)
+        return result
+
+class calculator_custom_1(models.Model):
+
+    _inherit = 'sale.order.line'
+
+    @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
+    def _compute_amount(self):
+        # res = super(calculator_custom_0, self)._compute_amount()
+
+        # return res
+        """
+        Compute the amounts of the SO line.
+        """
+        for line in self:
+            quantity_custom = line.product_uom_qty
+            if((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) == 0):
+                quantity_custom = line.product_uom_qty
+            elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
+                quantity_custom = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm * line.product_uom_qty)
+
+
+            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+            taxes = line.tax_id.compute_all(price, line.order_id.currency_id, quantity_custom, product=line.product_id, partner=line.order_id.partner_shipping_id)
+            line.update({
+                'price_tax': sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+                'price_total': taxes['total_included'],
+                'price_subtotal': taxes['total_excluded'],
+            })
