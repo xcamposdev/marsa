@@ -287,6 +287,7 @@ class calculator_custom_0(models.Model):
                             main_line_remove.append(i)
                         else:
                             line_remove.append(i)
+                line_remove.reverse()
                 for i in line_remove:
                     del _record_vals['order_line'][i]
                 super(calculator_custom_0, self).create(_record_vals)
@@ -310,6 +311,7 @@ class calculator_custom_0(models.Model):
             vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
             vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
 
+        main_line_remove.reverse()
         for i in main_line_remove:
             del vals['order_line'][i]
 
