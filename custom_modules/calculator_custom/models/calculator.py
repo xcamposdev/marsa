@@ -258,7 +258,8 @@ class calculator_custom_0(models.Model):
                 _record_vals['partner_id'] = client
                 client_data = self.env['res.partner'].search([('id','=',client)], limit=1)
                 if(client_data):
-                    _record_vals['partner_invoice_id'] = client_data.partner_invoice_id
+                    addr = client_data.address_get(['delivery', 'invoice'])
+                    _record_vals['partner_invoice_id'] = addr['invoice']
                 
 
                 if _record_vals.get('name', _('New')) == _('New'):
