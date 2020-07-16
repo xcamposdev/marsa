@@ -11,6 +11,7 @@
         Integrate Marsa custom
         """,
     'data': [
+        'security/ir.model.access.csv',
     	'views/calculator.xml',
     ],
     'images': ['static/description/icon.png'],
