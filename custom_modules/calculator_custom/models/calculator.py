@@ -16,16 +16,6 @@ class calculator_custom_0(models.Model):
     @api.depends('order_line.price_total')
     def _amount_all(self):
         for order in self:
-            amount_untaxed = amount_tax = 0.0
-            for line in order.order_line:
-                amount_untaxed += line.price_subtotal
-                amount_tax += line.price_tax
-            order.update({
-                'amount_untaxed': amount_untaxed,
-                'amount_tax': amount_tax,
-                'amount_total': amount_untaxed + amount_tax,
-            })
-
             if (self._description == 'Sales Order'):
                 _subtotal = 0
                 _is_section_descount = False
@@ -36,7 +26,19 @@ class calculator_custom_0(models.Model):
                         _subtotal += abs(line.price_subtotal)
                     if _is_section_descount:
                         if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                            line.update({'price_unit': _subtotal*(-1)})
+                            if(order.partner_id):
+                                price_discount = (_subtotal * order.partner_id.x_studio_descuento_comercial)/100
+                                line.update({'price_unit': price_discount*(-1)})
+                                
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                amount_tax += line.price_tax
+            order.update({
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
+                'amount_total': amount_untaxed + amount_tax,
+            })
 
     ENCIMERA = "Material"
     APLACADO = "Material"
@@ -248,7 +250,8 @@ class calculator_custom_0(models.Model):
                 self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
 
             if(self.order_line[pos_new_record].product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                self.order_line[pos_new_record].discount = discount
+                self.order_line[pos_new_record].name = self.order_line[pos_new_record].name + " " + str(discount) + "%"
+                self.order_line[pos_new_record].discount = 0
         else:
             for line in self.order_line:
                 if(line.product_id.id == selection_id):
