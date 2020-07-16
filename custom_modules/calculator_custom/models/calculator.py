@@ -21,22 +21,22 @@ class calculator_custom_0(models.Model):
                 amount_untaxed += line.price_subtotal
                 amount_tax += line.price_tax
             order.update({
-                'amount_untaxed': order.currency_id.round(amount_untaxed),
-                'amount_tax': order.currency_id.round(amount_tax),
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
                 'amount_total': amount_untaxed + amount_tax,
             })
 
             if (self._description == 'Sales Order'):
-                _discount = 0
+                _subtotal = 0
                 _is_section_descount = False
                 for line in order.order_line:
                     if(line.display_type == 'line_section' and line.name == order.SECTION_DESCUENTOS):
                         _is_section_descount = True
                     if not _is_section_descount:
-                        _discount += abs(line.price_subtotal)
+                        _subtotal += abs(line.price_subtotal)
                     if _is_section_descount:
                         if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                            line.update({'discount': _discount*(-1)})
+                            line.update({'price_unit': _subtotal*(-1)})
 
     ENCIMERA = "Material"
     APLACADO = "Material"
