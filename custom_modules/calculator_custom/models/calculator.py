@@ -4,6 +4,7 @@ import logging
 import copy
 from decimal import Decimal
 from odoo import api, fields, models, exceptions, _
+from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
 
@@ -12,12 +13,40 @@ class calculator_custom_0(models.Model):
     
     _inherit = 'sale.order'
 
+    @api.depends('order_line.price_total')
+    def _amount_all(self):
+        for order in self:
+            if (self._description == 'Sales Order'):
+                _subtotal = 0
+                _is_section_descount = False
+                for line in order.order_line:
+                    if(line.display_type == 'line_section' and line.name == order.SECTION_DESCUENTOS):
+                        _is_section_descount = True
+                    if not _is_section_descount:
+                        _subtotal += abs(line.price_subtotal)
+                    if _is_section_descount:
+                        if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                            if(order.partner_id):
+                                price_discount = (_subtotal * order.partner_id.x_studio_descuento_comercial)/100
+                                line.update({'price_unit': price_discount*(-1)})
+                                
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                amount_tax += line.price_tax
+            order.update({
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
+                'amount_total': amount_untaxed + amount_tax,
+            })
+
     ENCIMERA = "Material"
     APLACADO = "Material"
     SERVICIO = "Servicio"
     ZOCALO = "Material"
     CANTO = "Canto"
     OPERACION = "Operaciones"
+    PRODUCT_DESCOUNT_NAME = "Descuento"
 
     SECTION_ENCIMERA = "Seccion Encimera"
     SECTION_APLACADO = "Seccion Aplacado"
@@ -25,20 +54,81 @@ class calculator_custom_0(models.Model):
     SECTION_ZOCALO = "Seccion Zocalo"
     SECTION_CANTO = "Seccion Canto"
     SECTION_OPERACION = "Seccion Operacion"
-    
-    custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)])
-    custom_aplacado = fields.Many2one('product.template', "Aplacado", domain=[('categ_id.name','=',APLACADO)])
-    custom_servicio = fields.Many2one('product.template', "Servicio", domain=[('categ_id.name','=',SERVICIO)])
+    SECTION_DESCUENTOS = "Seccion Descuentos"
+
+    custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
+    custom_aplacado = fields.Many2one('product.template', "Aplacado", domain=[('categ_id.name','=',APLACADO)], store='FALSE')
+    custom_servicio = fields.Many2one('product.template', "Servicio", domain=[('categ_id.name','=',SERVICIO)], store='FALSE')
     custom_zocalo = fields.Many2one('product.template', "Zocalo", domain=[('categ_id.name','=',ZOCALO)])
     custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)])
     custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
     
-      
+    @api.model
+    def default_get(self, default_fields):
+        res = super(calculator_custom_0, self).default_get(default_fields)
+        lines = []
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_APLACADO, 'display_type': 'line_section', 'name': self.SECTION_APLACADO }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_SERVICIO, 'display_type': 'line_section', 'name': self.SECTION_SERVICIO }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ZOCALO, 'display_type': 'line_section', 'name': self.SECTION_ZOCALO }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_CANTO, 'display_type': 'line_section', 'name': self.SECTION_CANTO }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_OPERACION, 'display_type': 'line_section', 'name': self.SECTION_OPERACION }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_DESCUENTOS, 'display_type': 'line_section', 'name': self.SECTION_DESCUENTOS }])
+        res.update({'order_line': lines })
+
+        return res
+
     @api.onchange('x_studio_oportunidad')
     def _onchange_x_studio_oportunidad(self):
-        self.partner_id = self.x_studio_oportunidad.partner_id
-        #self.partner_shipping_id = self.x_studio_oportunidad.x_studio_direccin_de_envo.id
+        if(self.partner_id.id == self.x_studio_oportunidad.partner_id.id):
+            addr = self.partner_id.address_get(['delivery', 'invoice'])
+            self.partner_shipping_id = self.x_studio_oportunidad.x_studio_direccin_de_envo and self.x_studio_oportunidad.x_studio_direccin_de_envo.id or addr['delivery']
+        self.partner_id = self.x_studio_oportunidad.partner_id.id
         
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        """
+        Update the following fields when the partner is changed:
+        - Pricelist
+        - Payment terms
+        - Invoice address
+        - Delivery address
+        """
+        if not self.partner_id:
+            self.update({
+                'partner_invoice_id': False,
+                'partner_shipping_id': False,
+                'fiscal_position_id': False,
+            })
+            return
+
+        addr = self.partner_id.address_get(['delivery', 'invoice'])
+        partner_user = self.partner_id.user_id or self.partner_id.commercial_partner_id.user_id
+        values = {
+            'pricelist_id': self.partner_id.property_product_pricelist and self.partner_id.property_product_pricelist.id or False,
+            'payment_term_id': self.partner_id.property_payment_term_id and self.partner_id.property_payment_term_id.id or False,
+            'partner_invoice_id': self.partner_id.x_studio_facturar_a and self.partner_id.x_studio_facturar_a.id or addr['invoice'],
+            'partner_shipping_id': self.x_studio_oportunidad.x_studio_direccin_de_envo and self.x_studio_oportunidad.x_studio_direccin_de_envo.id or addr['delivery'],
+        }
+        user_id = partner_user.id
+        if not self.env.context.get('not_self_saleperson'):
+            user_id = user_id or self.env.uid
+        if self.user_id.id != user_id:
+            values['user_id'] = user_id
+
+        if self.env['ir.config_parameter'].sudo().get_param('account.use_invoice_terms') and self.env.company.invoice_terms:
+            values['note'] = self.with_context(lang=self.partner_id.lang).env.company.invoice_terms
+        values['team_id'] = self.env['crm.team']._get_default_team_id(domain=['|', ('company_id', '=', self.company_id.id), ('company_id', '=', False)],user_id=user_id)
+        self.update(values)
+        
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_DESCUENTOS)
+
+        product_id = self.env['product.template'].search([("name","=",self.PRODUCT_DESCOUNT_NAME)],limit=1)
+        # Add or Update line
+        if(self.order_line):
+            self.add_update_line(product_id.id, self.SECTION_DESCUENTOS, False, self.partner_id.x_studio_descuento_comercial)
+
     @api.onchange('pricelist_id')
     def _onchange_pricelist_id(self):
         for rec in self:
@@ -69,20 +159,9 @@ class calculator_custom_0(models.Model):
                 to_return.append(product_list.product_tmpl_id.id)
         return to_return    
 
-    @api.model
-    def default_get(self, default_fields):
-        res = super(calculator_custom_0, self).default_get(default_fields)
-        lines = []
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_APLACADO, 'display_type': 'line_section', 'name': self.SECTION_APLACADO }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_SERVICIO, 'display_type': 'line_section', 'name': self.SECTION_SERVICIO }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ZOCALO, 'display_type': 'line_section', 'name': self.SECTION_ZOCALO }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_CANTO, 'display_type': 'line_section', 'name': self.SECTION_CANTO }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_OPERACION, 'display_type': 'line_section', 'name': self.SECTION_OPERACION }])
-        res.update({'order_line': lines })
-        return res
 
-    def exists_section_in_order_line(self, _type, _name):        
+
+    def exists_section_in_order_line(self, _type, _name):
         exist = False
         if(self.order_line):
             for _line in self.order_line:
@@ -114,7 +193,7 @@ class calculator_custom_0(models.Model):
                         exist = True
         return exist
 
-    def add_update_line(self, selection_id, selection_text):
+    def add_update_line(self, selection_id, selection_text, category_name=False,discount=False):
         exist_product = self.exists_product_in_order_line(selection_id, selection_text)
         lines = []
         is_created = exist_product
@@ -161,14 +240,28 @@ class calculator_custom_0(models.Model):
         if(not exist_product):
             self.order_line[pos_new_record].product_id = selection_id
             self.order_line[pos_new_record].product_id_change()
+            custom_name = False
+            product_price = self.env['product.pricelist.item'].search([('pricelist_id','=',self.pricelist_id.id),('product_tmpl_id.categ_id.name','=',category_name),('product_tmpl_id.id','=',selection_id)], limit=1)
+            if(product_price.x_studio_referencia_scliente and product_price.x_studio_descrip_scliente):
+                custom_name = '%s%s' % (product_price.x_studio_referencia_scliente and '[%s] ' % product_price.x_studio_referencia_scliente or '', product_price.x_studio_descrip_scliente)
+            if custom_name:
+                self.order_line[pos_new_record].name = custom_name
+            else:
+                self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
+
+            if(self.order_line[pos_new_record].product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                self.order_line[pos_new_record].name = self.order_line[pos_new_record].name + " " + str(discount) + "%"
+                self.order_line[pos_new_record].discount = 0
         else:
             for line in self.order_line:
                 if(line.product_id.id == selection_id):
-                    quantity = line.product_uom_qty + 1
-                    line.update({'product_uom_qty': quantity})
+                    if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                        line.update({'discount': discount})
+                    else:
+                        quantity = line.product_uom_qty + 1
+                        line.update({'product_uom_qty': quantity})
 
-    
-        
+
     @api.onchange('custom_encimera')
     def _onchange_custom_encimera(self):
         # Create Seccion if not exists
@@ -176,9 +269,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_encimera and self.order_line):
-            self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA)
-
-
+            self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA, self.ENCIMERA)
 
     @api.onchange('custom_aplacado')
     def _onchange_custom_aplacado(self):
@@ -187,7 +278,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_aplacado and self.order_line):
-            self.add_update_line(self.custom_aplacado.id, self.SECTION_APLACADO)
+            self.add_update_line(self.custom_aplacado.id, self.SECTION_APLACADO, self.APLACADO)
 
     @api.onchange('custom_servicio')
     def _onchange_custom_servicio(self):
@@ -196,7 +287,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_servicio and self.order_line):
-            self.add_update_line(self.custom_servicio.id, self.SECTION_SERVICIO)
+            self.add_update_line(self.custom_servicio.id, self.SECTION_SERVICIO, self.SERVICIO)
 
     @api.onchange('custom_zocalo')
     def _onchange_custom_zocalo(self):
@@ -205,7 +296,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_zocalo and self.order_line):
-            self.add_update_line(self.custom_zocalo.id, self.SECTION_ZOCALO)
+            self.add_update_line(self.custom_zocalo.id, self.SECTION_ZOCALO, self.ZOCALO)
 
     @api.onchange('custom_canto')
     def _onchange_custom_canto(self):
@@ -214,7 +305,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_canto and self.order_line):
-            self.add_update_line(self.custom_canto.id, self.SECTION_CANTO)
+            self.add_update_line(self.custom_canto.id, self.SECTION_CANTO, self.CANTO)
 
     @api.onchange('custom_operacion')
     def _onchange_custom_operacion(self):
@@ -223,7 +314,7 @@ class calculator_custom_0(models.Model):
         
         # Add or Update line
         if(self.custom_operacion and self.order_line):
-            self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION)
+            self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION, self.OPERACION)
 
 
     @api.model
@@ -329,9 +420,6 @@ class calculator_custom_1(models.Model):
 
     @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _compute_amount(self):
-        # res = super(calculator_custom_0, self)._compute_amount()
-
-        # return res
         """
         Compute the amounts of the SO line.
         """
