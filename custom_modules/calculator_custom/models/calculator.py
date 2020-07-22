@@ -13,6 +13,32 @@ class calculator_custom_0(models.Model):
     
     _inherit = 'sale.order'
 
+    ENCIMERA = "Material"
+    ENCIMERA2 = "Material"
+    APLACADO = "Material"
+    SERVICIO = "Servicio"
+    ZOCALO = "Material"
+    CANTO = "Canto"
+    OPERACION = "Operaciones"
+    PRODUCT_DESCOUNT_NAME = "Descuento"
+
+    SECTION_ENCIMERA = "Seccion Encimera"
+    SECTION_ENCIMERA2 = "Seccion Encimera 2"
+    SECTION_APLACADO = "Seccion Aplacado"
+    SECTION_SERVICIO = "Seccion Servicio"
+    SECTION_ZOCALO = "Seccion Zocalo"
+    SECTION_CANTO = "Seccion Canto"
+    SECTION_OPERACION = "Seccion Operacion"
+    SECTION_DESCUENTOS = "Seccion Descuentos"
+
+    custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
+    custom_encimera2 = fields.Many2one('product.template', "Encimera 2", domain=[('categ_id.name','=',ENCIMERA2)], store='FALSE')
+    custom_aplacado = fields.Many2one('product.template', "Aplacado", domain=[('categ_id.name','=',APLACADO)], store='FALSE')
+    custom_servicio = fields.Many2one('product.template', "Servicio", domain=[('categ_id.name','=',SERVICIO)], store='FALSE')
+    custom_zocalo = fields.Many2one('product.template', "Zocalo", domain=[('categ_id.name','=',ZOCALO)])
+    custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)])
+    custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
+    
     @api.depends('order_line.price_total')
     def _amount_all(self):
         for order in self:
@@ -40,38 +66,16 @@ class calculator_custom_0(models.Model):
                 'amount_total': amount_untaxed + amount_tax,
             })
 
-    ENCIMERA = "Material"
-    APLACADO = "Material"
-    SERVICIO = "Servicio"
-    ZOCALO = "Material"
-    CANTO = "Canto"
-    OPERACION = "Operaciones"
-    PRODUCT_DESCOUNT_NAME = "Descuento"
-
-    SECTION_ENCIMERA = "Seccion Encimera"
-    SECTION_APLACADO = "Seccion Aplacado"
-    SECTION_SERVICIO = "Seccion Servicio"
-    SECTION_ZOCALO = "Seccion Zocalo"
-    SECTION_CANTO = "Seccion Canto"
-    SECTION_OPERACION = "Seccion Operacion"
-    SECTION_DESCUENTOS = "Seccion Descuentos"
-
-    custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
-    custom_aplacado = fields.Many2one('product.template', "Aplacado", domain=[('categ_id.name','=',APLACADO)], store='FALSE')
-    custom_servicio = fields.Many2one('product.template', "Servicio", domain=[('categ_id.name','=',SERVICIO)], store='FALSE')
-    custom_zocalo = fields.Many2one('product.template', "Zocalo", domain=[('categ_id.name','=',ZOCALO)])
-    custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)])
-    custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
-    
     @api.model
     def default_get(self, default_fields):
         res = super(calculator_custom_0, self).default_get(default_fields)
         lines = []
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA2, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA2 }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_APLACADO, 'display_type': 'line_section', 'name': self.SECTION_APLACADO }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_SERVICIO, 'display_type': 'line_section', 'name': self.SECTION_SERVICIO }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ZOCALO, 'display_type': 'line_section', 'name': self.SECTION_ZOCALO }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_CANTO, 'display_type': 'line_section', 'name': self.SECTION_CANTO }])
+        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_SERVICIO, 'display_type': 'line_section', 'name': self.SECTION_SERVICIO }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_OPERACION, 'display_type': 'line_section', 'name': self.SECTION_OPERACION }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_DESCUENTOS, 'display_type': 'line_section', 'name': self.SECTION_DESCUENTOS }])
         res.update({'order_line': lines })
@@ -126,8 +130,8 @@ class calculator_custom_0(models.Model):
 
         product_id = self.env['product.template'].search([("name","=",self.PRODUCT_DESCOUNT_NAME)],limit=1)
         # Add or Update line
-        if(self.order_line):
-            self.add_update_line(product_id.id, self.SECTION_DESCUENTOS, False, self.partner_id.x_studio_descuento_comercial)
+        if(product_id and self.order_line):
+            self.add_update_line(product_id.id, self.SECTION_DESCUENTOS, False, True, self.partner_id.x_studio_descuento_comercial)
 
     @api.onchange('pricelist_id')
     def _onchange_pricelist_id(self):
@@ -142,6 +146,7 @@ class calculator_custom_0(models.Model):
             return {
                 'domain': { 
                     'custom_encimera': [('categ_id.name','=',self.ENCIMERA),('id','in',data_encimera)],
+                    'custom_encimera2': [('categ_id.name','=',self.ENCIMERA),('id','in',data_encimera)],
                     'custom_aplacado': [('categ_id.name','=',self.APLACADO),('id','in',data_aplacado)],
                     'custom_servicio': [('categ_id.name','=',self.SERVICIO),('id','in',data_servicio)],
                     'custom_zocalo': [('categ_id.name','=',self.ZOCALO),('id','in',data_zocalo)],
@@ -161,107 +166,6 @@ class calculator_custom_0(models.Model):
 
 
 
-    def exists_section_in_order_line(self, _type, _name):
-        exist = False
-        if(self.order_line):
-            for _line in self.order_line:
-                if(_line.display_type == _type and _line.name == _name):
-                    exist = True
-        return exist
-
-    def create_section_in_order_line(self, selection_text):
-        # Get Or Create Seccion
-        exist_section = self.exists_section_in_order_line('line_section', selection_text)
-        if(exist_section == False):
-            lines = []
-            vals = {
-                'display_type': 'line_section',
-                'name': selection_text,
-            }
-            lines.append([0,0,vals])
-            self.order_line = lines        
-
-    def exists_product_in_order_line(self, _product_id, selection_text):
-        is_section = False
-        exist = False
-        if(self.order_line):
-            for _line in self.order_line:
-                if(is_section == False and _line.name == selection_text and _line.display_type == 'line_section'):
-                    is_section = True
-                if(is_section == True):
-                    if(_line.product_id.id == _product_id):
-                        exist = True
-        return exist
-
-    def add_update_line(self, selection_id, selection_text, category_name=False,discount=False):
-        exist_product = self.exists_product_in_order_line(selection_id, selection_text)
-        lines = []
-        is_created = exist_product
-        pos = 0
-        pos_new_record = 0
-        for line in self.order_line:
-            pos = pos + 1
-            lines.append({ 
-                'product_id': line.product_id.id or False,
-                'name': line.name,
-                'tax_id': line.tax_id,
-                'display_type': line.display_type or False,
-                'product_uom_qty': line.product_uom_qty,
-                'product_uom': line.product_uom,
-                'x_studio_unidades': line.x_studio_unidades,
-                'x_studio_largo_cm_1': line.x_studio_largo_cm_1,
-                'x_studio_ancho_cm': line.x_studio_ancho_cm,
-                'discount': line.discount,
-                'price_unit': line.price_unit,
-                'price_subtotal': line.price_subtotal
-                })
-            if(is_created == False and line.display_type == 'line_section' and line.name == selection_text):
-                pos_new_record = pos
-                lines.append({
-                    'product_id': False,
-                    'name': False,
-                    'tax_id': False,
-                    'display_type': False,
-                    'product_uom_qty': 0,
-                    'product_uom': False,
-                    'x_studio_unidades': 0,
-                    'x_studio_largo_cm_1': 0,
-                    'x_studio_ancho_cm': 0,
-                    'discount': 0,
-                    'price_unit': 0,
-                    'price_subtotal': 0
-                    })
-                is_created = True
-
-        self.order_line = [(5,0,0)]
-        for _line in lines:
-            self.order_line = [(0,0,_line)]
-        
-        if(not exist_product):
-            self.order_line[pos_new_record].product_id = selection_id
-            self.order_line[pos_new_record].product_id_change()
-            custom_name = False
-            product_price = self.env['product.pricelist.item'].search([('pricelist_id','=',self.pricelist_id.id),('product_tmpl_id.categ_id.name','=',category_name),('product_tmpl_id.id','=',selection_id)], limit=1)
-            if(product_price.x_studio_referencia_scliente and product_price.x_studio_descrip_scliente):
-                custom_name = '%s%s' % (product_price.x_studio_referencia_scliente and '[%s] ' % product_price.x_studio_referencia_scliente or '', product_price.x_studio_descrip_scliente)
-            if custom_name:
-                self.order_line[pos_new_record].name = custom_name
-            else:
-                self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
-
-            if(self.order_line[pos_new_record].product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                self.order_line[pos_new_record].name = self.order_line[pos_new_record].name + " " + str(discount) + "%"
-                self.order_line[pos_new_record].discount = 0
-        else:
-            for line in self.order_line:
-                if(line.product_id.id == selection_id):
-                    if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                        line.update({'discount': discount})
-                    else:
-                        quantity = line.product_uom_qty + 1
-                        line.update({'product_uom_qty': quantity})
-
-
     @api.onchange('custom_encimera')
     def _onchange_custom_encimera(self):
         # Create Seccion if not exists
@@ -270,6 +174,15 @@ class calculator_custom_0(models.Model):
         # Add or Update line
         if(self.custom_encimera and self.order_line):
             self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA, self.ENCIMERA)
+
+    @api.onchange('custom_encimera2')
+    def _onchange_custom_encimera2(self):
+        # Create Seccion if not exists
+        self.create_section_in_order_line(self.SECTION_ENCIMERA2)
+        
+        # Add or Update line
+        if(self.custom_encimera2 and self.order_line):
+            self.add_update_line(self.custom_encimera2.id, self.SECTION_ENCIMERA2, self.ENCIMERA2)
 
     @api.onchange('custom_aplacado')
     def _onchange_custom_aplacado(self):
@@ -317,9 +230,114 @@ class calculator_custom_0(models.Model):
             self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION, self.OPERACION)
 
 
+    def exists_section_in_order_line(self, _type, _name):
+        exist = False
+        if(self.order_line):
+            for _line in self.order_line:
+                if(_line.display_type == _type and _line.name == _name):
+                    exist = True
+        return exist
+
+    def create_section_in_order_line(self, selection_text):
+        # Get Or Create Seccion
+        exist_section = self.exists_section_in_order_line('line_section', selection_text)
+        if(exist_section == False):
+            lines = []
+            vals = {
+                'display_type': 'line_section',
+                'name': selection_text,
+            }
+            lines.append([0,0,vals])
+            self.order_line = lines        
+
+    def exists_product_in_order_line(self, _product_id, selection_text):
+        is_section = False
+        exist = False
+        if(self.order_line):
+            for _line in self.order_line:
+                if(is_section == False and _line.name == selection_text and _line.display_type == 'line_section'):
+                    is_section = True
+                if(is_section == True):
+                    if(_line.product_id.id == _product_id):
+                        exist = True
+        return exist
+
+    def create_product_in_order_line(self, seccion_text):
+        lines = []
+        pos_created = -1
+        for pos in range(len(self.order_line)):
+            lines.append({ 
+                'product_id': self.order_line[pos].product_id.id or False,
+                'name': self.order_line[pos].name,
+                'tax_id': self.order_line[pos].tax_id,
+                'display_type': self.order_line[pos].display_type or False,
+                'product_uom_qty': self.order_line[pos].product_uom_qty,
+                'product_uom': self.order_line[pos].product_uom,
+                'x_studio_unidades': self.order_line[pos].x_studio_unidades,
+                'x_studio_largo_cm_1': self.order_line[pos].x_studio_largo_cm_1,
+                'x_studio_ancho_cm': self.order_line[pos].x_studio_ancho_cm,
+                'discount': self.order_line[pos].discount,
+                'price_unit': self.order_line[pos].price_unit,
+                'price_subtotal': self.order_line[pos].price_subtotal
+                })
+            if(pos_created == -1 and self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name == seccion_text):
+                pos_created = pos
+                lines.append({
+                    'product_id': False,
+                    'name': False,
+                    'tax_id': False,
+                    'display_type': False,
+                    'product_uom_qty': 0,
+                    'product_uom': False,
+                    'x_studio_unidades': 0,
+                    'x_studio_largo_cm_1': 0,
+                    'x_studio_ancho_cm': 0,
+                    'discount': 0,
+                    'price_unit': 0,
+                    'price_subtotal': 0
+                    })
+
+        self.order_line = [(5,0,0)]
+        for _line in lines:
+            self.order_line = [(0,0,_line)]
+        
+        return pos_created
+
+    def add_update_line(self, selection_id, section_text, category_name=False, is_discount=False, discount=False):
+        pos_new_record = -1
+        if(is_discount):
+            exist_product = self.exists_product_in_order_line(selection_id, section_text)
+            if(exist_product == 0):
+                pos_new_record = self.create_product_in_order_line(section_text) + 1
+            else:
+                for line in self.order_line:
+                    if(line.product_id.id == selection_id and line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                        line.update({'name': line.product_id.name + " " + str(discount) + "%"})
+                        return
+        else:
+            pos_new_record = self.create_product_in_order_line(section_text) + 1
+
+        self.order_line[pos_new_record].product_id = selection_id
+        self.order_line[pos_new_record].product_id_change()
+        custom_name = False
+        product_price = self.env['product.pricelist.item'].search([('pricelist_id','=',self.pricelist_id.id),('product_tmpl_id.categ_id.name','=',category_name),('product_tmpl_id.id','=',selection_id)], limit=1)
+        if(product_price.x_studio_referencia_scliente and product_price.x_studio_descrip_scliente):
+            custom_name = '%s%s' % (product_price.x_studio_referencia_scliente and '[%s] ' % product_price.x_studio_referencia_scliente or '', product_price.x_studio_descrip_scliente)
+        if custom_name:
+            self.order_line[pos_new_record].name = custom_name
+        else:
+            self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
+        self.order_line[pos_new_record].price_unit = product_price.fixed_price
+
+        if(self.order_line[pos_new_record].product_id.name == self.PRODUCT_DESCOUNT_NAME):
+            self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name + " " + str(discount) + "%"
+            self.order_line[pos_new_record].discount = 0
+
+
     @api.model
     def create(self, vals):
         vals['custom_encimera'] = False
+        vals['custom_encimera2'] = False
         vals['custom_aplacado'] = False
         vals['custom_servicio'] = False
         vals['custom_zocalo'] = False
@@ -418,23 +436,10 @@ class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
 
-    @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
-    def _compute_amount(self):
-        """
-        Compute the amounts of the SO line.
-        """
+    @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
+    def _onchange_area(self):
         for line in self:
-            quantity_custom = line.product_uom_qty
             if((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) == 0):
-                quantity_custom = line.product_uom_qty
+                line.product_uom_qty = line.x_studio_unidades
             elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
-                quantity_custom = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm * line.product_uom_qty)
-
-
-            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            taxes = line.tax_id.compute_all(price, line.order_id.currency_id, quantity_custom, product=line.product_id, partner=line.order_id.partner_shipping_id)
-            line.update({
-                'price_tax': sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
-                'price_total': taxes['total_included'],
-                'price_subtotal': taxes['total_excluded'],
-            })
+                line.product_uom_qty = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm)
