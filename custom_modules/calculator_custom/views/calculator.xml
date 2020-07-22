@@ -1,6 +1,6 @@
 <odoo>
 
-   <!-- Adicion de elementos en add, edit and summary -->
+    <!-- Adicion de elementos en add, edit and summary -->
     <record id="view_form_calculator_inherited" model="ir.ui.view">
         <field name="name">form.calculator.inherit</field>
         <field name="model">sale.order</field>
@@ -10,19 +10,27 @@
 
                 <group name="group_custom_filter" string="Selección">
                     <group name="group_custom_filter_left" >
-                        <field name="custom_encimera" options="{'no_create': True, 'no_create_edit': True, 'no_open':True }" />
-                        <field name="custom_encimera2" options="{'no_create': True, 'no_create_edit': True, 'no_open':True }" />
-                        <field name="custom_aplacado" options="{'no_create': True, 'no_create_edit': True, 'no_open':True }" />
-                        <field name="custom_zocalo" options="{'no_create': True, 'no_create_edit':True, 'no_open':True }" />
+                        <field name="custom_encimera" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit': True, 'no_open' : True }" 
+                            context="{'encimera': True }" class="custom_calculator" />
+                        <field name="custom_encimera2" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit': True, 'no_open' : True }" 
+                            context="{'encimera2': True }" class="custom_calculator" />
+                        <field name="custom_aplacado" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit': True, 'no_open' : True }" 
+                            context="{'aplacado': True }" class="custom_calculator" />
+                        <field name="custom_zocalo" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit':True, 'no_open' : True }" 
+                            context="{'zocalo': True }" class="custom_calculator" />
                     </group>
                     <group name="group_custom_filter_right" >
-                        <field name="custom_canto" options="{'no_create': True, 'no_create_edit':True, 'no_open':True }" />
-                        <field name="custom_servicio" options="{'no_create': True, 'no_create_edit': True, 'no_open':True }" />
-                        <field name="custom_operacion" options="{'no_create': True, 'no_create_edit':True, 'no_open':True }" />
+                        <field name="custom_canto" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit':True, 'no_open' : True }"
+                            context="{'canto': True }" class="custom_calculator" />
+                        <field name="custom_servicio" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit': True, 'no_open' : True }"
+                            context="{'servicio': True }" class="custom_calculator" />
+                        <field name="custom_operacion" widget="custom_calculator_many2one" options="{'no_create': True, 'no_create_edit':True, 'no_open' : True }"
+                            context="{'operacion': True }" class="custom_calculator" />
                     </group>
                 </group>
                 
             </xpath>
         </field>
     </record>
+
 </odoo>
