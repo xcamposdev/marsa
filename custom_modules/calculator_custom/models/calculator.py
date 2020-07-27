@@ -178,8 +178,8 @@ class calculator_custom_0(models.Model):
             self.create_section_in_order_line(self.SECTION_ENCIMERA)
             
             # Add or Update line
-            if(self.custom_encimera and self.order_line):
-                self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA, self.ENCIMERA)
+            if(self.custom_encimera2 and self.order_line):
+                self.add_update_line(self.custom_encimera2.id, self.SECTION_ENCIMERA, self.ENCIMERA2)
 
     @api.onchange('custom_aplacado')
     def _onchange_custom_aplacado(self):
