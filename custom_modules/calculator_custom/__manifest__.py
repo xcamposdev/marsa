@@ -12,6 +12,7 @@
         """,
     'data': [
     	'views/calculator.xml',
+        'views/assets.xml',
     ],
     'images': ['static/description/icon.png'],
     'demo': [],

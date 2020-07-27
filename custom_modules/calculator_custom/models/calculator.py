@@ -10,7 +10,6 @@ _logger = logging.getLogger(__name__)
 
 
 class calculator_custom_0(models.Model):
-    
     _inherit = 'sale.order'
 
     ENCIMERA = "Material"
@@ -23,7 +22,6 @@ class calculator_custom_0(models.Model):
     PRODUCT_DESCOUNT_NAME = "Descuento"
 
     SECTION_ENCIMERA = "Seccion Encimera"
-    SECTION_ENCIMERA2 = "Seccion Encimera 2"
     SECTION_APLACADO = "Seccion Aplacado"
     SECTION_SERVICIO = "Seccion Servicio"
     SECTION_ZOCALO = "Seccion Zocalo"
@@ -71,7 +69,6 @@ class calculator_custom_0(models.Model):
         res = super(calculator_custom_0, self).default_get(default_fields)
         lines = []
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA }])
-        lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ENCIMERA2, 'display_type': 'line_section', 'name': self.SECTION_ENCIMERA2 }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_APLACADO, 'display_type': 'line_section', 'name': self.SECTION_APLACADO }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_ZOCALO, 'display_type': 'line_section', 'name': self.SECTION_ZOCALO }])
         lines.append([0,0,{ 'display_name': 'Nuevo - ' + self.SECTION_CANTO, 'display_type': 'line_section', 'name': self.SECTION_CANTO }])
@@ -164,70 +161,76 @@ class calculator_custom_0(models.Model):
                 to_return.append(product_list.product_tmpl_id.id)
         return to_return    
 
-
-
     @api.onchange('custom_encimera')
     def _onchange_custom_encimera(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_ENCIMERA)
-        
-        # Add or Update line
-        if(self.custom_encimera and self.order_line):
-            self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA, self.ENCIMERA)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_ENCIMERA)
+            
+            # Add or Update line
+            if(self.custom_encimera and self.order_line):
+                self.add_update_line(self.custom_encimera.id, self.SECTION_ENCIMERA, self.ENCIMERA)
 
     @api.onchange('custom_encimera2')
     def _onchange_custom_encimera2(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_ENCIMERA2)
-        
-        # Add or Update line
-        if(self.custom_encimera2 and self.order_line):
-            self.add_update_line(self.custom_encimera2.id, self.SECTION_ENCIMERA2, self.ENCIMERA2)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_ENCIMERA)
+            
+            # Add or Update line
+            if(self.custom_encimera2 and self.order_line):
+                self.add_update_line(self.custom_encimera2.id, self.SECTION_ENCIMERA, self.ENCIMERA2)
 
     @api.onchange('custom_aplacado')
     def _onchange_custom_aplacado(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_APLACADO)
-        
-        # Add or Update line
-        if(self.custom_aplacado and self.order_line):
-            self.add_update_line(self.custom_aplacado.id, self.SECTION_APLACADO, self.APLACADO)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_APLACADO)
+            
+            # Add or Update line
+            if(self.custom_aplacado and self.order_line):
+                self.add_update_line(self.custom_aplacado.id, self.SECTION_APLACADO, self.APLACADO)
 
     @api.onchange('custom_servicio')
     def _onchange_custom_servicio(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_SERVICIO)
-        
-        # Add or Update line
-        if(self.custom_servicio and self.order_line):
-            self.add_update_line(self.custom_servicio.id, self.SECTION_SERVICIO, self.SERVICIO)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_SERVICIO)
+            
+            # Add or Update line
+            if(self.custom_servicio and self.order_line):
+                self.add_update_line(self.custom_servicio.id, self.SECTION_SERVICIO, self.SERVICIO)
 
     @api.onchange('custom_zocalo')
     def _onchange_custom_zocalo(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_ZOCALO)
-        
-        # Add or Update line
-        if(self.custom_zocalo and self.order_line):
-            self.add_update_line(self.custom_zocalo.id, self.SECTION_ZOCALO, self.ZOCALO)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_ZOCALO)
+            
+            # Add or Update line
+            if(self.custom_zocalo and self.order_line):
+                self.add_update_line(self.custom_zocalo.id, self.SECTION_ZOCALO, self.ZOCALO)
 
     @api.onchange('custom_canto')
     def _onchange_custom_canto(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_CANTO)
-        
-        # Add or Update line
-        if(self.custom_canto and self.order_line):
-            self.add_update_line(self.custom_canto.id, self.SECTION_CANTO, self.CANTO)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_CANTO)
+            
+            # Add or Update line
+            if(self.custom_canto and self.order_line):
+                self.add_update_line(self.custom_canto.id, self.SECTION_CANTO, self.CANTO)
 
     @api.onchange('custom_operacion')
     def _onchange_custom_operacion(self):
-        # Create Seccion if not exists
-        self.create_section_in_order_line(self.SECTION_OPERACION)
-        
-        # Add or Update line
-        if(self.custom_operacion and self.order_line):
-            self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION, self.OPERACION)
+        if(self._context.get('from_button', False)):
+            # Create Seccion if not exists
+            self.create_section_in_order_line(self.SECTION_OPERACION)
+            
+            # Add or Update line
+            if(self.custom_operacion and self.order_line):
+                self.add_update_line(self.custom_operacion.id, self.SECTION_OPERACION, self.OPERACION)
+
 
 
     def exists_section_in_order_line(self, _type, _name):
@@ -432,6 +435,9 @@ class calculator_custom_0(models.Model):
         result = super(calculator_custom_0, self).create(vals)
         return result
 
+    
+    
+
 class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
@@ -439,7 +445,7 @@ class calculator_custom_1(models.Model):
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
         for line in self:
-            if((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) == 0):
+            if(line.x_studio_largo_cm_1 == 0 or line.x_studio_ancho_cm == 0):
                 line.product_uom_qty = line.x_studio_unidades
             elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
                 line.product_uom_qty = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm)
