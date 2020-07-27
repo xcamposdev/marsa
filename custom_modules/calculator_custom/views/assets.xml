@@ -4,8 +4,8 @@
 
     <template id="assets_calculadora" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
-            <!-- <script type="text/javascript" src="/calculator_custom/static/src/js/custom_many2one.js"></script>
-            <link rel="stylesheet" href="/calculator_custom/static/src/css/custom_many2one.css" /> -->
+            <script type="text/javascript" src="/calculator_custom/static/src/js/custom_many2one.js"></script>
+            <link rel="stylesheet" href="/calculator_custom/static/src/css/custom_many2one.css" />
         </xpath>
     </template>
 
