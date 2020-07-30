@@ -22,7 +22,6 @@ class calculator_custom_0(models.Model):
     OPERACION = "Operaciones"
     PRODUCT_DESCOUNT_NAME = "Descuento"
     PRODUCT_MERMA_NAME = "Material Sobrante"
-    PRODUCT_MERMA_ID = 0
 
     SECTION_ENCIMERA = "Seccion Encimera"
     SECTION_APLACADO = "Seccion Aplacado"
@@ -32,6 +31,7 @@ class calculator_custom_0(models.Model):
     SECTION_OPERACION = "Seccion Operacion"
     SECTION_DESCUENTOS = "Seccion Descuentos"
 
+    PRODUCT_MERMA_ID = fields.Integer(store=False, default=lambda self: self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)], limit=1))
     custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
     custom_encimera2 = fields.Many2one('product.template', "Encimera 2", domain=[('categ_id.name','=',ENCIMERA2)], store='FALSE')
     custom_aplacado = fields.Many2one('product.template', "Aplacado", domain=[('categ_id.name','=',APLACADO)], store='FALSE')
@@ -39,7 +39,7 @@ class calculator_custom_0(models.Model):
     custom_zocalo = fields.Many2one('product.template', "Zocalo", domain=[('categ_id.name','=',ZOCALO)])
     custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)])
     custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
-    
+
     @api.model
     def default_get(self, default_fields):
         res = super(calculator_custom_0, self).default_get(default_fields)
@@ -420,16 +420,11 @@ class calculator_custom_0(models.Model):
 
     @api.onchange('order_line')
     def _onchange_order_line_subtotal(self):
-
-        if(int(self.PRODUCT_MERMA_ID) == int(0)):
-            self.PRODUCT_MERMA_ID = self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)])
-
         _subtotal = 0
         _is_section_descount = False
 
-        line_section_name = ""
         items = []
-        items_to_delete = []
+        section_now = ""
         for line in self.order_line:
             # Calcula el precio de descuento
             if(line.display_type == 'line_section' and line.name == self.SECTION_DESCUENTOS):
@@ -444,63 +439,55 @@ class calculator_custom_0(models.Model):
 
             # PRODUCT_MERMA_NAME
             if(_is_section_descount == False):
-                if(line.display_type == 'line_section'):
-                    if(items):
-                        #crear mermas
-                        for data in items:
-                            pos_new_record = self.check_if_exists_merma_product(line_section_name, self.PRODUCT_MERMA_ID.id, data['product_name'])
-                            if(int(pos_new_record) == int(-1)):
-                                pos_new_record = self.create_product_in_order_line(line_section_name) + 1
-                                self.order_line[pos_new_record].product_id = self.PRODUCT_MERMA_ID.id
-                                self.order_line[pos_new_record].product_id_change()
-                                self.order_line[pos_new_record].name = data['product_name']
-                                self.order_line[pos_new_record].product_uom_qty = data['m2t'] - data['m2u']
-                                self.order_line[pos_new_record].price_unit = data['price']
-                            else:
-                                self.order_line[pos_new_record].name = data['product_name']
-                                self.order_line[pos_new_record].product_uom_qty = data['m2t'] - data['m2u']
-                                self.order_line[pos_new_record].price_unit = data['price']
-                            
-                            # for toDelete in items_to_delete:
-                            #     if(toDelete['product_name'] == data['product_name']):
-                            #         items_to_delete.remove({'product_name': data['product_name']})
-
-                    items = []
-                    items_to_delete = []
-                    line_section_name = line.name
                 
-                if(line.product_id.id != False and line.product_id.id != self.PRODUCT_MERMA_ID.id):
-                    _pos = self.check_if_exists_product(items, line.product_id.name)
+                if(line.display_type == 'line_section'):
+                    section_now = line.name
+
+                if(line.product_id.id != False and line.product_id.id != self.PRODUCT_MERMA_ID and line.display_type == False):
+                    _pos = -1
                     _m2t = line.x_studio_tablas * (line.product_id.x_studio_largo_cm/100) * (line.product_id.x_studio_alto_cm/100)
-                    _m2u = line.product_uom_qty
+                    for pos in range(len(items)):
+                        if(items[pos]['product_id'] == line.product_id.id):
+                            _pos = pos
+                            break
+
                     if(int(_pos) == int(-1)):
-                        items.append({ 'product_name': line.product_id.name, 'm2t': _m2t, 'm2u': _m2u, 'price': line.product_id.standard_price })
+                        items.append({
+                            'product_id': line.product_id.id,
+                            'product_name': line.product_id.name, 
+                            'tablas': line.x_studio_tablas, 
+                            'm2t': _m2t, 
+                            'm2u': line.product_uom_qty, 
+                            'price': line.product_id.standard_price,
+                            'section': section_now
+                            })
                     else:
+                        items[_pos]['tablas'] = line.x_studio_tablas + items[_pos]['tablas']
                         items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
-                        items[_pos]['m2u'] = _m2u + items[_pos]['m2u']
+                        items[_pos]['m2u'] = line.product_uom_qty + items[_pos]['m2u']
+                        items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
+                        items[_pos]['section'] = section_now
 
-                # if(line.product_id.id != False and line.product_id.id == self.PRODUCT_MERMA_ID.id):
-                #     items_to_delete.append({ 'product_name': line.name })
-
-    def check_if_exists_product(self, _array, value_to_search):
-        exist = -1
-        if(_array):
-            for pos in range(len(_array)):
-                if(_array[pos]['product_name'] == value_to_search):
-                    exist = pos
-        return exist
-
-    def check_if_exists_merma_product(self, section_text, product_id, product_name):
-        is_section = False
-        exist = -1
+        for merma in items:
+            if(merma['tablas'] > 0):
+                pos_new_record = self.check_if_exists_merma_product(self.PRODUCT_MERMA_ID, merma['product_name'])
+                if(int(pos_new_record) == int(-1)):
+                    pos_new_record = self.create_product_in_order_line(merma['section']) + 1
+                    self.order_line[pos_new_record].product_id = self.PRODUCT_MERMA_ID
+                    self.order_line[pos_new_record].product_id_change()
+                self.order_line[pos_new_record].name = self.PRODUCT_MERMA_NAME + ": " + merma['product_name']
+                self.order_line[pos_new_record].product_uom_qty = merma['m2t'] - merma['m2u']
+                self.order_line[pos_new_record].price_unit = merma['price']
+                    
+    def check_if_exists_merma_product(self, merma_id, product_name):
+        pos_found = -1
         if(self.order_line):
             for pos in range(len(self.order_line)):
-                if(is_section == False and self.order_line[pos].name == section_text and self.order_line[pos].display_type == 'line_section'):
-                    is_section = True
-                if(is_section == True):
-                    if(self.order_line[pos].product_id.id == product_id and self.order_line[pos].name == product_name):
-                        exist = pos
-        return exist
+                description_name = self.PRODUCT_MERMA_NAME + ": " + product_name
+                if(self.order_line[pos].product_id.id == merma_id and self.order_line[pos].name == description_name):
+                    pos_found = pos
+                    break
+        return pos_found
     
 
 
