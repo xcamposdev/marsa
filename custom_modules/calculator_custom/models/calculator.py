@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 
 class calculator_custom_0(models.Model):
+
     _inherit = 'sale.order'
 
     ENCIMERA = "Material"
@@ -20,6 +21,8 @@ class calculator_custom_0(models.Model):
     CANTO = "Canto"
     OPERACION = "Operaciones"
     PRODUCT_DESCOUNT_NAME = "Descuento"
+    PRODUCT_MERMA_NAME = "Material Sobrante"
+    PRODUCT_MERMA_ID = 0
 
     SECTION_ENCIMERA = "Seccion Encimera"
     SECTION_APLACADO = "Seccion Aplacado"
@@ -37,33 +40,6 @@ class calculator_custom_0(models.Model):
     custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)])
     custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)])
     
-    @api.depends('order_line.price_total')
-    def _amount_all(self):
-        for order in self:
-            if (self._description == 'Sales Order'):
-                _subtotal = 0
-                _is_section_descount = False
-                for line in order.order_line:
-                    if(line.display_type == 'line_section' and line.name == order.SECTION_DESCUENTOS):
-                        _is_section_descount = True
-                    if not _is_section_descount:
-                        _subtotal += abs(line.price_subtotal)
-                    if _is_section_descount:
-                        if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
-                            if(order.partner_id):
-                                price_discount = (_subtotal * order.partner_id.x_studio_descuento_comercial)/100
-                                line.update({'price_unit': price_discount*(-1)})
-                                
-            amount_untaxed = amount_tax = 0.0
-            for line in order.order_line:
-                amount_untaxed += line.price_subtotal
-                amount_tax += line.price_tax
-            order.update({
-                'amount_untaxed': amount_untaxed,
-                'amount_tax': amount_tax,
-                'amount_total': amount_untaxed + amount_tax,
-            })
-
     @api.model
     def default_get(self, default_fields):
         res = super(calculator_custom_0, self).default_get(default_fields)
@@ -268,6 +244,7 @@ class calculator_custom_0(models.Model):
     def create_product_in_order_line(self, seccion_text):
         lines = []
         pos_created = -1
+        is_in_section = False
         for pos in range(len(self.order_line)):
             lines.append({ 
                 'product_id': self.order_line[pos].product_id.id or False,
@@ -276,6 +253,7 @@ class calculator_custom_0(models.Model):
                 'display_type': self.order_line[pos].display_type or False,
                 'product_uom_qty': self.order_line[pos].product_uom_qty,
                 'product_uom': self.order_line[pos].product_uom,
+                'x_studio_tablas': self.order_line[pos].x_studio_tablas,
                 'x_studio_unidades': self.order_line[pos].x_studio_unidades,
                 'x_studio_largo_cm_1': self.order_line[pos].x_studio_largo_cm_1,
                 'x_studio_ancho_cm': self.order_line[pos].x_studio_ancho_cm,
@@ -283,22 +261,27 @@ class calculator_custom_0(models.Model):
                 'price_unit': self.order_line[pos].price_unit,
                 'price_subtotal': self.order_line[pos].price_subtotal
                 })
-            if(pos_created == -1 and self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name == seccion_text):
-                pos_created = pos
-                lines.append({
-                    'product_id': False,
-                    'name': False,
-                    'tax_id': False,
-                    'display_type': False,
-                    'product_uom_qty': 0,
-                    'product_uom': False,
-                    'x_studio_unidades': 0,
-                    'x_studio_largo_cm_1': 0,
-                    'x_studio_ancho_cm': 0,
-                    'discount': 0,
-                    'price_unit': 0,
-                    'price_subtotal': 0
-                    })
+            if(self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name == seccion_text):
+                is_in_section = True
+            
+            if(is_in_section):
+                if(len(self.order_line) == (pos + 1) or self.order_line[pos+1].display_type == 'line_section'):
+                    pos_created = pos
+                    lines.append({
+                        'product_id': False,
+                        'name': False,
+                        'tax_id': False,
+                        'display_type': False,
+                        'product_uom_qty': 0,
+                        'product_uom': False,
+                        'x_studio_unidades': 0,
+                        'x_studio_largo_cm_1': 0,
+                        'x_studio_ancho_cm': 0,
+                        'discount': 0,
+                        'price_unit': 0,
+                        'price_subtotal': 0
+                        })
+                    is_in_section = False
 
         self.order_line = [(5,0,0)]
         for _line in lines:
@@ -435,8 +418,92 @@ class calculator_custom_0(models.Model):
         result = super(calculator_custom_0, self).create(vals)
         return result
 
+    @api.onchange('order_line')
+    def _onchange_order_line_subtotal(self):
+
+        if(int(self.PRODUCT_MERMA_ID) == int(0)):
+            self.PRODUCT_MERMA_ID = self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)])
+
+        _subtotal = 0
+        _is_section_descount = False
+
+        line_section_name = ""
+        items = []
+        items_to_delete = []
+        for line in self.order_line:
+            # Calcula el precio de descuento
+            if(line.display_type == 'line_section' and line.name == self.SECTION_DESCUENTOS):
+                _is_section_descount = True
+            if not _is_section_descount:
+                _subtotal += abs(line.price_subtotal)
+            if _is_section_descount:
+                if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                    if(self.partner_id):
+                        price_discount = (_subtotal * self.partner_id.x_studio_descuento_comercial)/100
+                        line.update({'price_unit': price_discount*(-1)})
+
+            # PRODUCT_MERMA_NAME
+            if(_is_section_descount == False):
+                if(line.display_type == 'line_section'):
+                    if(items):
+                        #crear mermas
+                        for data in items:
+                            pos_new_record = self.check_if_exists_merma_product(line_section_name, self.PRODUCT_MERMA_ID.id, data['product_name'])
+                            if(int(pos_new_record) == int(-1)):
+                                pos_new_record = self.create_product_in_order_line(line_section_name) + 1
+                                self.order_line[pos_new_record].product_id = self.PRODUCT_MERMA_ID.id
+                                self.order_line[pos_new_record].product_id_change()
+                                self.order_line[pos_new_record].name = data['product_name']
+                                self.order_line[pos_new_record].product_uom_qty = data['m2t'] - data['m2u']
+                                self.order_line[pos_new_record].price_unit = data['price']
+                            else:
+                                self.order_line[pos_new_record].name = data['product_name']
+                                self.order_line[pos_new_record].product_uom_qty = data['m2t'] - data['m2u']
+                                self.order_line[pos_new_record].price_unit = data['price']
+                            
+                            # for toDelete in items_to_delete:
+                            #     if(toDelete['product_name'] == data['product_name']):
+                            #         items_to_delete.remove({'product_name': data['product_name']})
+
+                    items = []
+                    items_to_delete = []
+                    line_section_name = line.name
+                
+                if(line.product_id.id != False and line.product_id.id != self.PRODUCT_MERMA_ID.id):
+                    _pos = self.check_if_exists_product(items, line.product_id.name)
+                    _m2t = line.x_studio_tablas * (line.product_id.x_studio_largo_cm/100) * (line.product_id.x_studio_alto_cm/100)
+                    _m2u = line.product_uom_qty
+                    if(int(_pos) == int(-1)):
+                        items.append({ 'product_name': line.product_id.name, 'm2t': _m2t, 'm2u': _m2u, 'price': line.product_id.standard_price })
+                    else:
+                        items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
+                        items[_pos]['m2u'] = _m2u + items[_pos]['m2u']
+
+                # if(line.product_id.id != False and line.product_id.id == self.PRODUCT_MERMA_ID.id):
+                #     items_to_delete.append({ 'product_name': line.name })
+
+    def check_if_exists_product(self, _array, value_to_search):
+        exist = -1
+        if(_array):
+            for pos in range(len(_array)):
+                if(_array[pos]['product_name'] == value_to_search):
+                    exist = pos
+        return exist
+
+    def check_if_exists_merma_product(self, section_text, product_id, product_name):
+        is_section = False
+        exist = -1
+        if(self.order_line):
+            for pos in range(len(self.order_line)):
+                if(is_section == False and self.order_line[pos].name == section_text and self.order_line[pos].display_type == 'line_section'):
+                    is_section = True
+                if(is_section == True):
+                    if(self.order_line[pos].product_id.id == product_id and self.order_line[pos].name == product_name):
+                        exist = pos
+        return exist
     
-    
+
+
 
 class calculator_custom_1(models.Model):
 
@@ -449,3 +516,7 @@ class calculator_custom_1(models.Model):
                 line.product_uom_qty = line.x_studio_unidades
             elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
                 line.product_uom_qty = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm)
+
+    # @api.onchange('x_studio_tablas','x_studio_largo_cm_1','x_studio_ancho_cm','product_uom_qty')
+    # def _onchange_mermas(self):
+    #     test = ""
