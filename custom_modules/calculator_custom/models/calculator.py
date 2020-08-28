@@ -508,13 +508,21 @@ class calculator_custom_1(models.Model):
 
     def _get_report_product_description(self):
         for record in self:
-            data = self.env['product.pricelist.item'].search([('pricelist_id','=',record.order_id.pricelist_id.id),('product_tmpl_id','=', record.product_template_id.id)], limit=1)
+            data = self.env['product.pricelist.item'].search([('pricelist_id','=',record.order_id.pricelist_id.id),\
+                                                              ('product_tmpl_id','=', record.product_template_id.id),\
+                                                              ('x_studio_presupuestar_a','=', record.order_id.partner_id.id)], limit=1)
             if(data):
                 text = ""
                 if(data.x_studio_referencia_scliente):
                     text = "[" + data.x_studio_referencia_scliente + "] "
                 if(data.x_studio_descrip_scliente):
                     text = text + data.x_studio_descrip_scliente
-                record.report_product_description = text
+                
+                if(text == ""):
+                    record.report_product_description = record.name
+                else:
+                    record.report_product_description = text
             else:
+                _logger.info(record.name)
+                _logger.info(record)
                 record.report_product_description = record.name
