@@ -23,13 +23,13 @@ class calculator_custom_0(models.Model):
     PRODUCT_DESCOUNT_NAME = "Descuento"
     PRODUCT_MERMA_NAME = "Material Sobrante"
 
-    SECTION_ENCIMERA = "Secci髇 Encimera"
-    SECTION_APLACADO = "Secci髇 Aplacado"
-    SECTION_SERVICIO = "Secci髇 Servicio"
-    SECTION_ZOCALO = "Secci髇 Zocalo"
-    SECTION_CANTO = "Secci髇 Canto"
-    SECTION_OPERACION = "Secci髇 Operacion"
-    SECTION_DESCUENTOS = "Secci髇 Descuentos"
+    SECTION_ENCIMERA = "Secci贸n Encimera"
+    SECTION_APLACADO = "Secci贸n Aplacado"
+    SECTION_SERVICIO = "Secci贸n Servicio"
+    SECTION_ZOCALO = "Secci贸n Zocalo"
+    SECTION_CANTO = "Secci贸n Canto"
+    SECTION_OPERACION = "Secci贸n Operacion"
+    SECTION_DESCUENTOS = "Secci贸n Descuentos"
 
     PRODUCT_MERMA_ID = fields.Integer(store=False, default=lambda self: self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)], limit=1))
     custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
@@ -496,7 +496,7 @@ class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
     
-    report_product_description = field_name = fields.Text(string='Descripci髇', compute='_get_report_product_description')
+    report_product_description = field_name = fields.Text(string='Descripci贸n', compute='_get_report_product_description')
     
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
