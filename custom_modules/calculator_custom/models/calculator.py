@@ -23,13 +23,13 @@ class calculator_custom_0(models.Model):
     PRODUCT_DESCOUNT_NAME = "Descuento"
     PRODUCT_MERMA_NAME = "Material Sobrante"
 
-    SECTION_ENCIMERA = "Seccion Encimera"
-    SECTION_APLACADO = "Seccion Aplacado"
-    SECTION_SERVICIO = "Seccion Servicio"
-    SECTION_ZOCALO = "Seccion Zocalo"
-    SECTION_CANTO = "Seccion Canto"
-    SECTION_OPERACION = "Seccion Operacion"
-    SECTION_DESCUENTOS = "Seccion Descuentos"
+    SECTION_ENCIMERA = "Sección Encimera"
+    SECTION_APLACADO = "Sección Aplacado"
+    SECTION_SERVICIO = "Sección Servicio"
+    SECTION_ZOCALO = "Sección Zocalo"
+    SECTION_CANTO = "Sección Canto"
+    SECTION_OPERACION = "Sección Operacion"
+    SECTION_DESCUENTOS = "Sección Descuentos"
 
     PRODUCT_MERMA_ID = fields.Integer(store=False, default=lambda self: self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)], limit=1))
     custom_encimera = fields.Many2one('product.template', "Encimera", domain=[('categ_id.name','=',ENCIMERA)], store='FALSE')
@@ -495,7 +495,9 @@ class calculator_custom_0(models.Model):
 class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
-
+    
+    report_product_description = field_name = fields.Text(string='Descripción para Reporte', compute='_get_report_product_description')
+    
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
         for line in self:
@@ -504,6 +506,23 @@ class calculator_custom_1(models.Model):
             elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
                 line.product_uom_qty = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm)
 
-    # @api.onchange('x_studio_tablas','x_studio_largo_cm_1','x_studio_ancho_cm','product_uom_qty')
-    # def _onchange_mermas(self):
-    #     test = ""
+    def _get_report_product_description(self):
+        for record in self:
+            data = self.env['product.pricelist.item'].search([('pricelist_id','=',record.order_id.pricelist_id.id),\
+                                                              ('product_tmpl_id','=', record.product_template_id.id),\
+                                                              ('x_studio_presupuestar_a','=', record.order_id.partner_id.id)], limit=1)
+            if(data):
+                text = ""
+                if(data.x_studio_referencia_scliente):
+                    text = "[" + data.x_studio_referencia_scliente + "] "
+                if(data.x_studio_descrip_scliente):
+                    text = text + data.x_studio_descrip_scliente
+                
+                if(text == ""):
+                    record.report_product_description = record.name
+                else:
+                    record.report_product_description = text
+            else:
+                _logger.info(record.name)
+                _logger.info(record)
+                record.report_product_description = record.name
