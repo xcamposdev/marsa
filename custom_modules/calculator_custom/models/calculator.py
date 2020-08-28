@@ -496,7 +496,7 @@ class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
     
-    report_product_description = field_name = fields.Text(string='Descripción', compute='_get_report_product_description')
+    report_product_description = field_name = fields.Text(string='Descripción para Reporte', compute='_get_report_product_description')
     
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
@@ -512,14 +512,9 @@ class calculator_custom_1(models.Model):
             if(data):
                 text = ""
                 if(data.x_studio_referencia_scliente):
-                    text = "[" + data.x_studio_referencia_scliente + "]"
+                    text = "[" + data.x_studio_referencia_scliente + "] "
                 if(data.x_studio_descrip_scliente):
-                    text = data.x_studio_descrip_scliente
-                report_product_description = ""
+                    text = text + data.x_studio_descrip_scliente
+                record.report_product_description = text
             else:
-                report_product_description = record.name
-            
-        
-    # @api.onchange('x_studio_tablas','x_studio_largo_cm_1','x_studio_ancho_cm','product_uom_qty')
-    # def _onchange_mermas(self):
-    #     test = ""
+                record.report_product_description = record.name
