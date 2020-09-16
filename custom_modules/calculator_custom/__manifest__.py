@@ -5,7 +5,7 @@
     'author': 'Develoop Software S.A.',
     'category': 'Marsa',
     'website': 'https://www.develoop.net/',
-    'depends': ['crm', 'base','sale'],
+    'depends': ['crm', 'base','sale','sale_management'],
     'summary': 'Marsa Custom Functionality',
     'description': """
         Integrate Marsa custom
