@@ -320,7 +320,7 @@ class calculator_custom_0(models.Model):
             self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
         self.order_line[pos_new_record].price_unit = product_price.fixed_price
 
-        if(unidecode(self.order_line[pos_new_record].product_id.name.lower()) == unidecode(self.PRODUCT_DESCOUNT_NAME.lower()):
+        if(unidecode(self.order_line[pos_new_record].product_id.name.lower()) == unidecode(self.PRODUCT_DESCOUNT_NAME.lower())):
             self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name + " " + str(discount) + "%"
             self.order_line[pos_new_record].discount = 0
 
