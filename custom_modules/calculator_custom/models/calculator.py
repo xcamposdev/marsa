@@ -2,6 +2,7 @@
 
 import logging
 import copy
+from unidecode import unidecode
 from decimal import Decimal
 from datetime import timedelta
 from odoo import api, fields, models, exceptions, _
@@ -27,9 +28,9 @@ class calculator_custom_0(models.Model):
     SECTION_ENCIMERA = "Sección Encimera"
     SECTION_APLACADO = "Sección Aplacado"
     SECTION_SERVICIO = "Sección Servicio"
-    SECTION_ZOCALO = "Sección Zocalo"
+    SECTION_ZOCALO = "Sección Zócalo"
     SECTION_CANTO = "Sección Canto"
-    SECTION_OPERACION = "Sección Operacion"
+    SECTION_OPERACION = "Sección Operación"
     SECTION_DESCUENTOS = "Sección Descuentos"
 
     PRODUCT_MERMA_ID = fields.Integer(store=False, default=lambda self: self.env['product.product'].search([('name','=',self.PRODUCT_MERMA_NAME)], limit=1))
@@ -217,7 +218,7 @@ class calculator_custom_0(models.Model):
         exist = False
         if(self.order_line):
             for _line in self.order_line:
-                if(_line.display_type == _type and _line.name == _name):
+                if(_line.display_type == _type and unidecode(_line.name.lower()) == unidecode(_name.lower())):
                     exist = True
         return exist
 
@@ -238,7 +239,7 @@ class calculator_custom_0(models.Model):
         exist = False
         if(self.order_line):
             for _line in self.order_line:
-                if(is_section == False and _line.name == selection_text and _line.display_type == 'line_section'):
+                if(is_section == False and unidecode(_line.name.lower()) == unidecode(selection_text.lower()) and _line.display_type == 'line_section'):
                     is_section = True
                 if(is_section == True):
                     if(_line.product_id.id == _product_id):
@@ -265,7 +266,7 @@ class calculator_custom_0(models.Model):
                 'price_unit': self.order_line[pos].price_unit,
                 'price_subtotal': self.order_line[pos].price_subtotal
                 })
-            if(self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name == seccion_text):
+            if(self.order_line[pos].display_type == 'line_section' and unidecode(self.order_line[pos].name.lower()) == unidecode(seccion_text.lower())):
                 is_in_section = True
             
             if(is_in_section):
@@ -301,7 +302,7 @@ class calculator_custom_0(models.Model):
                 pos_new_record = self.create_product_in_order_line(section_text) + 1
             else:
                 for line in self.order_line:
-                    if(line.product_id.id == selection_id and line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                    if(line.product_id.id == selection_id and unidecode(line.product_id.name.lower()) == unidecode(self.PRODUCT_DESCOUNT_NAME.lower())):
                         line.update({'name': line.product_id.name + " " + str(discount) + "%"})
                         return
         else:
@@ -319,7 +320,7 @@ class calculator_custom_0(models.Model):
             self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name
         self.order_line[pos_new_record].price_unit = product_price.fixed_price
 
-        if(self.order_line[pos_new_record].product_id.name == self.PRODUCT_DESCOUNT_NAME):
+        if(unidecode(self.order_line[pos_new_record].product_id.name.lower()) == unidecode(self.PRODUCT_DESCOUNT_NAME.lower())):
             self.order_line[pos_new_record].name = self.order_line[pos_new_record].product_id.name + " " + str(discount) + "%"
             self.order_line[pos_new_record].discount = 0
 
@@ -431,12 +432,12 @@ class calculator_custom_0(models.Model):
         section_now = ""
         for line in self.order_line:
             # Calcula el precio de descuento
-            if(line.display_type == 'line_section' and line.name == self.SECTION_DESCUENTOS):
+            if(line.display_type == 'line_section' and unidecode(line.name.lower()) == unidecode(self.SECTION_DESCUENTOS.lower())):
                 _is_section_descount = True
             if not _is_section_descount:
                 _subtotal += abs(line.price_subtotal)
             if _is_section_descount:
-                if(line.product_id.name == self.PRODUCT_DESCOUNT_NAME):
+                if(line.product_id and unidecode(line.product_id.name.lower()) == unidecode(self.PRODUCT_DESCOUNT_NAME.lower())):
                     if(self.partner_id):
                         price_discount = (_subtotal * self.partner_id.x_studio_descuento_comercial)/100
                         line.update({'price_unit': price_discount*(-1)})
@@ -488,7 +489,7 @@ class calculator_custom_0(models.Model):
         if(self.order_line):
             for pos in range(len(self.order_line)):
                 description_name = self.PRODUCT_MERMA_NAME + ": " + product_name
-                if(self.order_line[pos].product_id.id == merma_id and self.order_line[pos].name == description_name):
+                if(self.order_line[pos].product_id.id == merma_id and unidecode(self.order_line[pos].name.lower()) == unidecode(description_name.lower())):
                     pos_found = pos
                     break
         return pos_found
@@ -589,3 +590,4 @@ class calculator_custom_1(models.Model):
                 _logger.info(record.name)
                 _logger.info(record)
                 record.report_product_description = record.name
+
