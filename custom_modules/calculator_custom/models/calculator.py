@@ -9,7 +9,6 @@ from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
 
-
 class calculator_custom_0(models.Model):
 
     _inherit = 'sale.order'
@@ -589,4 +588,3 @@ class calculator_custom_1(models.Model):
                 _logger.info(record.name)
                 _logger.info(record)
                 record.report_product_description = record.name
-
