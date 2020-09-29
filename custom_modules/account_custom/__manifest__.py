@@ -10,7 +10,9 @@
         Modificar funcionalidad de factura
         """,
     'depends': ['base','account'],
-    'data': [],
+    'data': [
+        'views/account_custom.xml',
+    ],
     'demo': [],
     'installable': True,
 }
