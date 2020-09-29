@@ -12,6 +12,12 @@ class AccountMoveCustom0(models.Model):
 
     _inherit = 'account.move'
 
+    x_importe_comision = fields.Float(compute='get_importe_comision')
+
+    def get_importe_comision(self):
+        for rec in self:
+            rec.x_importe_comision = rec.amount_total * rec.x_importe_comision/100
+
     @api.onchange('partner_id')
     def custom_onchange_partner_id(self):
         self.x_studio_referenciador = self.partner_id.x_studio_referenciador
