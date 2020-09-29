@@ -10,7 +10,7 @@ class AccountMoveCustom0(models.Model):
 
     _inherit = 'account.move'
 
-    x_importe_comision = fields.Float(compute='get_importe_comision')
+    x_importe_comision = fields.Float(compute='get_importe_comision', store=True)
 
     def get_importe_comision(self):
         for rec in self:
