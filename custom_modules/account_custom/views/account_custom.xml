@@ -1,0 +1,16 @@
+<odoo>
+
+    <!-- Adicion de elementos en treeview de facturas -->
+    <record id="view_account_invoice_tree_inherited" model="ir.ui.view">
+        <field name="name">form.account.invoice.tree.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="x_studio_comisin" string="%com" optional="show" attrs="{'readonly':[('state','!=','draft')]}" />
+                <field name="x_importe_comision" string="Imp. Comisión" optional="show" readonly="1" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
