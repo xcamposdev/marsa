@@ -23,8 +23,8 @@ class calculator_custom_0(models.Model):
     ZOCALO = "Material"
     CANTO = "Canto"
     OPERACION = "Operaciones"
-    PRODUCT_DESCOUNT_NAME = "Descuento"
-    PRODUCT_DESCOUNT2_NAME = "Descuento 2"
+    PRODUCT_DESCOUNT_NAME = "Dto. Comercial"
+    PRODUCT_DESCOUNT2_NAME = "Dto. PP"
     PRODUCT_MERMA_NAME = "Material Sobrante"
 
     SECTION_ENCIMERA = "Sección Encimera"
