@@ -14,7 +14,7 @@ class AccountMoveCustom0(models.Model):
 
     def get_importe_comision(self):
         for rec in self:
-            rec.x_importe_comision = rec.amount_total * rec.x_importe_comision/100
+            rec.x_importe_comision = rec.amount_untaxed_signed * (rec.x_studio_comisin)/100
 
     @api.onchange('partner_id')
     def custom_onchange_partner_id(self):

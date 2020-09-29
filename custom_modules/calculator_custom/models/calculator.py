@@ -2,6 +2,7 @@
 
 import logging
 import copy
+from itertools import groupby
 from decimal import Decimal
 from datetime import timedelta
 from odoo import api, fields, models, exceptions, _
