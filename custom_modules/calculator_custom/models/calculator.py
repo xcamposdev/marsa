@@ -45,6 +45,11 @@ class calculator_custom_0(models.Model):
     custom_zocalo = fields.Many2one('product.template', "Zocalo", domain=[('categ_id.name','=',ZOCALO)], store='FALSE')
     custom_canto = fields.Many2one('product.template', "Canto", domain=[('categ_id.name','=',CANTO)], store='FALSE')
     custom_operacion = fields.Many2one('product.template', "Operacion", domain=[('categ_id.name','=',OPERACION)], store='FALSE')
+    x_importe_comision = fields.Monetary(compute='get_importe_comision')
+
+    def get_importe_comision(self):
+        for rec in self:
+            rec.x_importe_comision = rec.amount_untaxed_signed * (rec.x_studio_comisin)/100
 
     @api.model
     def default_get(self, default_fields):
