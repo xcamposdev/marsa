@@ -49,7 +49,7 @@ class calculator_custom_0(models.Model):
 
     def get_importe_comision(self):
         for rec in self:
-            rec.x_importe_comision = rec.amount_untaxed_signed * (rec.x_studio_comisin)/100
+            rec.x_importe_comision = rec.amount_untaxed * (rec.x_studio_comisin)/100
 
     @api.model
     def default_get(self, default_fields):
