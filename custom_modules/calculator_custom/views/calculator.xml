@@ -33,4 +33,17 @@
         </field>
     </record>
 
+
+    <!-- Adicion de elementos en treeview de ventas -->
+    <record id="view_sale_order_tree_inherited" model="ir.ui.view">
+        <field name="name">form.sale.order.tree.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='activity_exception_decoration']" position="after">
+                <field name="x_studio_comisin" string="%com" optional="show" />
+                <field name="x_importe_comision" string="Imp. Comisión" optional="show" />
+            </xpath>
+        </field>
+    </record>
 </odoo>
