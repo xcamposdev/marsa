@@ -140,6 +140,7 @@ class calculator_custom_0(models.Model):
             return to_return  
 
         for rec in self:
+            rec.custom_encimera = rec.custom_encimera2 = rec.custom_aplacado = rec.custom_servicio = rec.custom_zocalo = rec.custom_canto = rec.custom_operacion = False
             data_encimera = _get_product_ids_by_category(rec.pricelist_id.id, self.ENCIMERA)
             data_aplacado = _get_product_ids_by_category(rec.pricelist_id.id, self.APLACADO)
             data_servicio = _get_product_ids_by_category(rec.pricelist_id.id, self.SERVICIO)
@@ -621,10 +622,14 @@ class calculator_custom_1(models.Model):
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
         for line in self:
-            if(line.x_studio_largo_cm_1 == 0 or line.x_studio_ancho_cm == 0):
+            if line.x_studio_unidades == 0:
+                line.product_uom_qty = line.x_studio_largo_cm_1 * line.x_studio_ancho_cm
+            elif line.x_studio_unidades != 0 and line.x_studio_largo_cm_1 != 0 and line.x_studio_ancho_cm != 0:
+                line.product_uom_qty = line.x_studio_unidades * line.x_studio_largo_cm_1 * line.x_studio_ancho_cm
+            elif line.x_studio_unidades != 0 and line.x_studio_largo_cm_1 == 0 and line.x_studio_ancho_cm == 0:
                 line.product_uom_qty = line.x_studio_unidades
-            elif((line.x_studio_largo_cm_1 * line.x_studio_ancho_cm) != 0):
-                line.product_uom_qty = (line.x_studio_largo_cm_1 * line.x_studio_ancho_cm)
+            else:
+                line.product_uom_qty = 0
 
     def _get_report_product_description(self):
         for record in self:
