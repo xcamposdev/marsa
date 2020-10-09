@@ -497,7 +497,7 @@ class calculator_custom_0(models.Model):
                         items[_pos]['tablas'] = line.x_studio_tablas + items[_pos]['tablas']
                         items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
                         items[_pos]['m2u'] = line.product_uom_qty + items[_pos]['m2u']
-                        items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
+                        items[_pos]['price'] = line.product_id.standard_price + items[_pos]['price']
                         items[_pos]['section'] = section_now
 
         for merma in items:
@@ -547,6 +547,9 @@ class calculator_custom_0(models.Model):
 
             # Invoice values.
             invoice_vals = order._prepare_invoice()
+
+            invoice_vals['x_studio_referenciador'] = order.x_studio_referenciador.id
+            invoice_vals['x_studio_comisin'] = order.x_studio_comisin
 
             # Invoice line values (keep only necessary sections).
             for line in order.order_line:
@@ -598,8 +601,6 @@ class calculator_custom_0(models.Model):
         # 3) Create invoices.
         # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
         # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
-        invoice_vals_list[0]['x_studio_referenciador'] = self.x_studio_referenciador.id
-        invoice_vals_list[0]['x_studio_comisin'] = self.x_studio_comisin
         moves = self.env['account.move'].sudo().with_context(default_type='out_invoice').create(invoice_vals_list)
         # 4) Some moves might actually be refunds: convert them if the total amount is negative
         # We do this after the moves have been created since we need taxes, etc. to know if the total
