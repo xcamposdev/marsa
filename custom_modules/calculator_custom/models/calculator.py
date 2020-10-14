@@ -497,7 +497,6 @@ class calculator_custom_0(models.Model):
                         items[_pos]['tablas'] = line.x_studio_tablas + items[_pos]['tablas']
                         items[_pos]['m2t'] = _m2t + items[_pos]['m2t']
                         items[_pos]['m2u'] = line.product_uom_qty + items[_pos]['m2u']
-                        items[_pos]['price'] = line.product_id.standard_price + items[_pos]['price']
                         items[_pos]['section'] = section_now
 
         for merma in items:
