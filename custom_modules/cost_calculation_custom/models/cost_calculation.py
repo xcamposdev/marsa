@@ -15,4 +15,3 @@ _logger = logging.getLogger(__name__)
 class cost_calculation_custom_0(models.Model):
 
     _inherit = 'sale.order'
-
