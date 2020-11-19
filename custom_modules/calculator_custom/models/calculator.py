@@ -617,7 +617,7 @@ class calculator_custom_1(models.Model):
 
     _inherit = 'sale.order.line'
     
-    report_product_description = field_name = fields.Text(string='Descripción para Reporte', compute='_get_report_product_description')
+    report_product_description = fields.Text(string='Descripción para Reporte', compute='_get_report_product_description')
     
     @api.onchange('x_studio_unidades', 'x_studio_largo_cm_1', 'x_studio_ancho_cm')
     def _onchange_area(self):
