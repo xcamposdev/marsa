@@ -6,7 +6,7 @@
     "author": "Develoop Software",
     "category": "CRM",
     "summary": "Permite realizar calculo de costes",
-    "website": "",
+    'website': "https://www.develoop.net/",
     'description': """
         - Permite realizar calculo de costes """,
     "depends": ["sale"],
