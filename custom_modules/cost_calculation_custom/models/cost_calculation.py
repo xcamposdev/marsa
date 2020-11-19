@@ -131,7 +131,7 @@ class cost_calculation_custom_0(models.Model):
     #coronas por montaje
     @api.onchange('x_studio_montaje', 'x_studio_km_montaje')
     def x_studio_montaje_onchange(self):
-        if(self.x_studio_montador.x_studio_km_coronas > 0 and self.x_studio_montaje == 'si' and self.x_studio_km_montaje > self.x_studio_montador.x_studio_km_coronas):
+        if(self.x_studio_montador.x_studio_km_coronas > 0 and (self.x_studio_montaje == 'si' or self.x_studio_montaje == 'incidencia') and self.x_studio_km_montaje > self.x_studio_montador.x_studio_km_coronas):
             self.x_studio_coronas_montaje = math.ceil((self.x_studio_km_montaje / self.x_studio_montador.x_studio_km_coronas) - 1)
         else:
             self.x_studio_coronas_montaje = 0
@@ -168,15 +168,13 @@ class cost_calculation_custom_0(models.Model):
                 _ancho_pieza = _line_data.x_studio_ancho_cm
                 _total_unidades = _line_data.x_studio_unidades if _line_data.x_studio_unidades > 0 else 1
 
-                if(_metros_lineales > 3):
-                    _total_instalacion_extra += math.ceil((_metros_lineales * _total_unidades) - 3)
-                elif(_metros_lineales <= 3):
-                    if (_ancho_pieza > 0.7):
-                        _total_instalacion_extra += math.ceil((_metros_lineales * _total_unidades * 2) - 3)
-                    elif (_ancho_pieza <= 0.7):
-                        _total_instalacion_extra += math.ceil((_metros_lineales * _total_unidades) - 3)
                 
-            self.x_studio_instalacin_extra = _total_instalacion_extra 
+                if (_ancho_pieza > 0.7):
+                    _total_instalacion_extra += _metros_lineales * _total_unidades * 2
+                else:
+                    _total_instalacion_extra += _metros_lineales * _total_unidades
+                    
+            self.x_studio_instalacin_extra = math.ceil(_total_instalacion_extra) -3
 
     #segunda medicion
     @api.onchange('x_studio_2_medicin')
@@ -227,7 +225,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'PATAS'
         _total_patas = 0
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_patas += line.product_uom_qty
         self.x_studio_patas = _total_patas
     
@@ -236,7 +234,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'BAJO ENCIMERA'
         _total_bajo_encimera = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_bajo_encimera += line.product_uom_qty
         self.x_studio_bajo_encimera = _total_bajo_encimera       
                 
@@ -245,7 +243,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'DESMONTAR'
         _total_desmontar = 0
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_desmontar += line.product_uom_qty
         self.x_studio_desmontar = _total_desmontar
                 
@@ -254,7 +252,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'CONEXIONES'
         _total_post_cuarzo = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_post_cuarzo += line.product_uom_qty
         self.x_studio_post_cuarzo = _total_post_cuarzo        
     
@@ -263,7 +261,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'REMATES POSTVENTA'
         _total_remate_postventa = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_remate_postventa += line.product_uom_qty
         self.x_studio_remate_postventa = _total_remate_postventa
         
@@ -272,7 +270,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = 'REVISIÓN POSTVENTA'
         _total_revision_postventa = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') == line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type != 'line_section' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_revision_postventa += line.product_uom_qty               
         self.x_studio_revisin_postventa = _total_revision_postventa
 
