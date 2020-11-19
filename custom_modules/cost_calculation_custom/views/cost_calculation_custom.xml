@@ -19,7 +19,7 @@
                     <field name="x_studio_segunda_medicin" force_save="True" attrs="{}" readonly="1" invisible="1"/>
                     <field name="x_studio_montaje" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
                     <field name="x_studio_km_montaje" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}"/>
-                    <field name="x_studio_coronas_montaje" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}" readonly="1"/>
+                    <field name="x_studio_coronas_montaje" force_save="True" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}" readonly="1"/>
                     <field name="x_studio_instalacin_extra" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
                     <field name="x_studio_colocacin_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
                     <field name="x_studio_medir_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
