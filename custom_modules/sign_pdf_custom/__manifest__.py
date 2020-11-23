@@ -5,7 +5,7 @@
     'author': 'Develoop Software S.A.',
     'category': 'Marsa',
     'website': 'https://www.develoop.net/',
-    'depends': ['base','account'],
+    'depends': ['base','account','mail'],
     'summary': 'Sign PDF',
     'description': """
         Integracion de la firma digital
