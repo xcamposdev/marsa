@@ -3,6 +3,8 @@
 import logging
 import base64
 import re
+import requests
+import json
 
 from odoo import _, api, fields, models, SUPERUSER_ID, tools
 from odoo.tools.safe_eval import safe_eval
@@ -177,6 +179,30 @@ class mail_custom_0(models.TransientModel):
 
             Attachment = self.env['ir.attachment']
             for attach_fname, attach_datas in values.pop('attachments', []):
+
+                ###########################################################
+
+                if(self.model == "account.move" and self.res_id > 0 and self.template_id != False and self.template_id.model == "account.move"):
+                    sign_pdf_api = self.env['ir.config_parameter'].get_param('x_sign_pdf_url_api')
+                    api_token = self.env['ir.config_parameter'].get_param('x_api_token')
+                    paramaters = {
+                        'api_token': str(api_token),
+                        'pdf_file': attach_datas.decode('utf-8') 
+                    }
+                    #.decode('utf-8')
+
+                    pdf_sign = requests.post(\
+                        sign_pdf_api, 
+                        headers={'Content-type': 'application/json', 'Accept': 'application/json'}, \
+                        data=json.dumps(paramaters))
+
+                    if(pdf_sign):
+                        if(pdf_sign.status_code == 200):
+                            response_sign = json.loads(pdf_sign.text)
+                            attach_datas = response_sign['certified_file']
+                    
+                ###########################################################
+
                 data_attach = {
                     'name': attach_fname,
                     'datas': attach_datas,
