@@ -2,14 +2,15 @@
 <odoo>
 
     <!-- Nuevo parametro que sirve para el api -->
-    <record id="x_sign_pdf_url_api" model="ir.config_parameter">
+    <!-- <record id="x_sign_pdf_url_api" model="ir.config_parameter">
         <field name="key">x_sign_pdf_url_api</field>
         <field name="value">http://marsa.develoop.net/api/v1/certificate</field>
+                            https://agenda.msesteve.es/api/v1/certificate
     </record>
 
     <record id="x_api_token" model="ir.config_parameter">
         <field name="key">x_api_token</field>
         <field name="value">$2y$10$DoC25e/EMASRo23zK4JdwO59uHrcJxf21BvKZz87hVtWXrLspqdvy5</field>
-    </record>
+    </record> -->
 
 </odoo>
