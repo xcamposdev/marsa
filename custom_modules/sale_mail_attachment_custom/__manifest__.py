@@ -10,7 +10,9 @@
     'description': """
         Envio de correo con todos los attachment de la oportunidad
         """,
-    'data': [],
+    'data': [
+        'views/sign_pdf_custom.xml',
+    ],
     'images': ['static/description/icon.png'],
     'demo': [],
     'installable': True,

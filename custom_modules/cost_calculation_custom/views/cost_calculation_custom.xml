@@ -1,0 +1,48 @@
+<odoo>
+  <data>
+    <record id="view_sale_order_coste_custom" model="ir.ui.view">
+        <field name="name">sale.order.coste.custom.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+              <page name="studio_page_Coste" string="Costes" attrs="{'invisible': [('id', '=', False)]}">
+                <group name="studio_group_contenido">
+                  <group name="studio_group_left">
+                    <field name="x_studio_obra" widget="radio"/>
+                    <field name="x_studio_coste_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'no'),('x_studio_obra', '=', False)]}"/>
+                    <field name="x_studio_coste_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'no'),('x_studio_obra', '=', False)]}"/>
+                    <field name="x_studio_medicin" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
+                    <field name="x_studio_km_medicin" attrs="{'invisible': ['|',('x_studio_medicin', '=', 'no'),('x_studio_medicin', '=', False)]}"/>
+                    <field name="x_studio_coronas_medicin" force_save="True" attrs="{'invisible': ['|',('x_studio_medicin', '=', 'no'),('x_studio_medicin', '=', False)]}" readonly="1"/>
+                    <field name="x_studio_2_medicin" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
+                    <field name="x_studio_segunda_medicin" force_save="True" attrs="{}" readonly="1" invisible="1"/>
+                    <field name="x_studio_montaje" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
+                    <field name="x_studio_km_montaje" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}"/>
+                    <field name="x_studio_coronas_montaje" force_save="True" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}" readonly="1"/>
+                    <field name="x_studio_instalacin_extra" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
+                    <field name="x_studio_colocacin_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_medir_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_patas" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_bajo_encimera" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_desmontar" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_post_cuarzo" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
+                    <field name="x_studio_tercera_persona" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
+                    <field name="x_studio_remates_postventa" force_save="True" attrs="{'invisible': [('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
+                    <field name="x_studio_revisin_postventa" force_save="True" attrs="{'invisible': [('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
+                  </group>
+                  <group name="studio_group_right">
+                    <field name="x_studio_medidor" force_save="True" attrs="{}" />
+                    <field name="x_studio_montador" force_save="True" attrs="{}" />
+                    <field name="x_studio_obtener_datos" invisible="1" />
+                  </group>
+                </group>
+                <group>
+                    <button name="save_cost" string="Guardar Costes" type="object" class="oe_highlight" attrs="{'invisible': [('id', '=', False)]}" />
+                </group>
+              </page>
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>
