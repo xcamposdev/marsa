@@ -311,8 +311,8 @@ class mail_custom_1(models.Model):
                     ###########################################################
 
                     if(self.model == "account.move" and self.name == "Invoice: Send by email"):
-                        sign_pdf_api = self.env['ir.config_parameter'].get_param('x_sign_pdf_url_api')
-                        api_token = self.env['ir.config_parameter'].get_param('x_api_token')
+                        sign_pdf_api = self.env['ir.config_parameter'].sudo().get_param('x_sign_pdf_url_api')
+                        api_token = self.env['ir.config_parameter'].sudo().get_param('x_api_token')
                         paramaters = {
                             'api_token': str(api_token),
                             'pdf_file': result.decode('utf-8') 
