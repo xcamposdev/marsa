@@ -1,5 +1,82 @@
 <odoo>
+  <data noupdate="1">
+    <!-- definimos variables de entorno -->
+    <record id="x_producto_patas" model="ir.config_parameter">
+        <field name="key">x_producto_patas</field>
+        <field name="value">PATAS</field>
+    </record>
+    <record id="x_producto_bajo_encimera" model="ir.config_parameter">
+        <field name="key">x_producto_bajo_encimera</field>
+        <field name="value">BAJO ENCIMERA</field>
+    </record>
+    <record id="x_producto_desmontar" model="ir.config_parameter">
+        <field name="key">x_producto_desmontar</field>
+        <field name="value">DESMONTAR</field>
+    </record>
+    <record id="x_producto_conexiones_post_cuarzo" model="ir.config_parameter">
+        <field name="key">x_producto_conexiones_post_cuarzo</field>
+        <field name="value">CONEXIONES</field>
+    </record>
+    <record id="x_producto_remates_postventa" model="ir.config_parameter">
+        <field name="key">x_producto_remates_postventa</field>
+        <field name="value">REMATES POSTVENTA</field>
+    </record>
+    <record id="x_producto_revision_postventa" model="ir.config_parameter">
+        <field name="key">x_producto_revision_postventa</field>
+        <field name="value">REVISIÓN POSTVENTA</field>
+    </record>
+
+
+    <record id="x_categoria_costes" model="ir.config_parameter">
+        <field name="key">x_categoria_costes</field>
+        <field name="value">Costes</field>
+    </record>
+    <record id="x_producto_obra" model="ir.config_parameter">
+        <field name="key">x_producto_obra</field>
+        <field name="value">Obra</field>
+    </record>
+
+    <record id="x_producto_tareas_medidor" model="ir.config_parameter">
+        <field name="key">x_producto_tareas_medidor</field>
+        <field name="value">Medición MARSA</field>
+    </record>
+    <record id="x_producto_km" model="ir.config_parameter">
+        <field name="key">x_producto_km</field>
+        <field name="value">KM</field>
+    </record>
+    <record id="x_producto_coronas" model="ir.config_parameter">
+        <field name="key">x_producto_coronas</field>
+        <field name="value">CORONAS</field>
+    </record>
+    <record id="x_producto_2_medicion" model="ir.config_parameter">
+        <field name="key">x_producto_2_medicion</field>
+        <field name="value">2º VIAJE</field>
+    </record>
+
+    <record id="x_producto_tareas_montador" model="ir.config_parameter">
+        <field name="key">x_producto_tareas_montador</field>
+        <field name="value">Instalacion</field>
+    </record>
+    <record id="x_producto_instalacion_extra" model="ir.config_parameter">
+        <field name="key">x_producto_instalacion_extra</field>
+        <field name="value">I.E.</field>
+    </record>
+    <record id="x_producto_colocacion_aplacados" model="ir.config_parameter">
+        <field name="key">x_producto_colocacion_aplacados</field>
+        <field name="value">Colocar Aplacados (m2)</field>
+    </record>
+    <record id="x_producto_medir_aplacados" model="ir.config_parameter">
+        <field name="key">x_producto_medir_aplacados</field>
+        <field name="value">Medir Aplacados</field>
+    </record>
+    <record id="x_producto_3_persona" model="ir.config_parameter">
+        <field name="key">x_producto_3_persona</field>
+        <field name="value">3ª PERSONA</field>
+    </record>
+   
+  </data>
   <data>
+    <!-- definimos campos de formulario -->
     <record id="view_sale_order_coste_custom" model="ir.ui.view">
         <field name="name">sale.order.coste.custom.form</field>
         <field name="model">sale.order</field>
@@ -9,31 +86,35 @@
               <page name="studio_page_Coste" string="Costes" attrs="{'invisible': [('id', '=', False)]}">
                 <group name="studio_group_contenido">
                   <group name="studio_group_left">
+                    
                     <field name="x_studio_obra" widget="radio"/>
                     <field name="x_studio_coste_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'no'),('x_studio_obra', '=', False)]}"/>
                     <field name="x_studio_coste_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'no'),('x_studio_obra', '=', False)]}"/>
+                    <!-- <separator/> -->
+
                     <field name="x_studio_medicin" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
-                    <field name="x_studio_km_medicin" attrs="{'invisible': ['|',('x_studio_medicin', '=', 'no'),('x_studio_medicin', '=', False)]}"/>
-                    <field name="x_studio_coronas_medicin" force_save="True" attrs="{'invisible': ['|',('x_studio_medicin', '=', 'no'),('x_studio_medicin', '=', False)]}" readonly="1"/>
-                    <field name="x_studio_2_medicin" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
-                    <field name="x_studio_segunda_medicin" force_save="True" attrs="{}" readonly="1" invisible="1"/>
+                    <field name="x_studio_km_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}"/>
+                    <field name="x_studio_coronas_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_2_medicin" widget="radio" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}"/>
+                    <!-- <separator/> -->
+
                     <field name="x_studio_montaje" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
-                    <field name="x_studio_km_montaje" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}"/>
-                    <field name="x_studio_coronas_montaje" force_save="True" attrs="{'invisible': ['|',('x_studio_montaje', '!=', 'si'),('x_studio_montaje', '=', False)]}" readonly="1"/>
-                    <field name="x_studio_instalacin_extra" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
-                    <field name="x_studio_colocacin_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_medir_aplacados" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_patas" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_bajo_encimera" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_desmontar" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_post_cuarzo" force_save="True" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}" readonly="1"/>
-                    <field name="x_studio_tercera_persona" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
-                    <field name="x_studio_remates_postventa" force_save="True" attrs="{'invisible': [('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
-                    <field name="x_studio_revisin_postventa" force_save="True" attrs="{'invisible': [('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
+                    <field name="x_studio_km_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_montaje', '=', 'no')]}"/>
+                    <field name="x_studio_coronas_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_instalacin_extra" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_colocacin_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_medir_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_patas" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_bajo_encimera" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_desmontar" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_post_cuarzo" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>                    
+                    <field name="x_studio_tercera_persona" widget="radio" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}"/>
+                    <field name="x_studio_remates_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
+                    <field name="x_studio_revisin_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
                   </group>
                   <group name="studio_group_right">
-                    <field name="x_studio_medidor" force_save="True" attrs="{}" />
-                    <field name="x_studio_montador" force_save="True" attrs="{}" />
+                    <field name="x_studio_medidor" />
+                    <field name="x_studio_montador" />
                     <field name="x_studio_obtener_datos" invisible="1" />
                   </group>
                 </group>
