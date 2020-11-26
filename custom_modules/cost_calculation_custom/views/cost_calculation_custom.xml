@@ -94,23 +94,23 @@
 
                     <field name="x_studio_medicin" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
                     <field name="x_studio_km_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}"/>
-                    <field name="x_studio_coronas_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}" readonly="1"/>
+                    <field name="x_studio_coronas_medicin" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}" readonly="1" force_save="True"/>
                     <field name="x_studio_2_medicin" widget="radio" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_medicin', '=', 'no')]}"/>
                     <!-- <separator/> -->
 
                     <field name="x_studio_montaje" widget="radio" attrs="{'invisible': [('x_studio_obra', '=', 'si')]}"/>
                     <field name="x_studio_km_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_montaje', '=', 'no')]}"/>
-                    <field name="x_studio_coronas_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_instalacin_extra" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_colocacin_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_medir_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_patas" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_bajo_encimera" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_desmontar" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>
-                    <field name="x_studio_post_cuarzo" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1"/>                    
+                    <field name="x_studio_coronas_montaje" attrs="{'invisible': ['|',('x_studio_obra', '=', 'si'),('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True" />
+                    <field name="x_studio_instalacin_extra" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_colocacin_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_medir_aplacados" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_patas" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_bajo_encimera" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_desmontar" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_post_cuarzo" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}" readonly="1" force_save="True"/>
                     <field name="x_studio_tercera_persona" widget="radio" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'), ('x_studio_montaje', '=', 'no')]}"/>
-                    <field name="x_studio_remates_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
-                    <field name="x_studio_revisin_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1"/>
+                    <field name="x_studio_remates_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1" force_save="True"/>
+                    <field name="x_studio_revisin_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1" force_save="True"/>
                   </group>
                   <group name="studio_group_right">
                     <field name="x_studio_medidor" />

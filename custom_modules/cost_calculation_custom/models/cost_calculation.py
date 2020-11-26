@@ -77,12 +77,12 @@ class cost_calculation_custom_0(models.Model):
                     if(partner.user_ids):
                         tipo = partner.user_ids[0].x_studio_subtipo
                         if(tipo == 'Medidor'):
-                            self.x_studio_medidor = partner.id
+                            self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
                         elif(tipo == 'Montador'):
-                            self.x_studio_montador = partner.id
+                            self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
                         elif(tipo == 'Montador plaza' or tipo == 'Partner plaza'):
-                            self.x_studio_montador = partner.id
-                            self.x_studio_medidor = partner.id
+                            self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
+                            self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
 
         self.get_x_studio_instalacion_extra_onchange()
         self.get_x_studio_aplacados_onchange()
@@ -363,7 +363,7 @@ class cost_calculation_custom_0(models.Model):
         if(partner_id):
             if(type == 'medidor'):
                 purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_medidor_purchase_id)])
-            elif(type == 'medidor'):
+            elif(type == 'montador'):
                 purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_montador_purchase_id)])
             if(not purchase):
                 purchase = self.env['purchase.order'].create({
