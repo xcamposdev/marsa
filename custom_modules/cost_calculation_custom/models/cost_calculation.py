@@ -65,6 +65,8 @@ class cost_calculation_custom_0(models.Model):
 
     x_medidor_purchase_id = fields.Integer(default=0)
     x_montador_purchase_id = fields.Integer(default=0)
+    x_purchase_medidor_total = fields.Float(string="Medidor",default=0)
+    x_purchase_montador_total = fields.Float(string="Montador",default=0)
 
     #obtener medidor y montador
     def get_obtener_datos(self):
@@ -300,7 +302,11 @@ class cost_calculation_custom_0(models.Model):
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_remate_post_venta, self.x_studio_remates_postventa, is_incidencia)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_revision_post_venta, self.x_studio_revisin_postventa, is_incidencia)
 
-
+        if(purchase_medidor):
+            self.x_purchase_medidor_total = purchase_medidor.amount_total
+        if(purchase_montador):
+            self.x_purchase_montador_total = purchase_montador.amount_total
+    
 
         #Actualizar costos del presupuesto
         if(self.x_studio_obra == 'si'):
@@ -350,7 +356,7 @@ class cost_calculation_custom_0(models.Model):
             'x_studio_medidor': self.x_studio_medidor,
             'x_studio_montador': self.x_studio_montador
         })
-
+        return self
 
     def create_purchase_order(self, partner_id, type):
         purchase = False
@@ -369,7 +375,7 @@ class cost_calculation_custom_0(models.Model):
         return purchase
 
     def crud_purchase_order_line(self, purchase, categoria_padre_name, producto_name, quantity, is_add_or_edit):
-        if(purchase and quantity > 0):
+        if(purchase):
             price_list = self.env['product.pricelist.item'].search([('pricelist_id','=',self.pricelist_id.id), \
                 ('product_tmpl_id.categ_id.parent_id.name','=', categoria_padre_name),\
                 ('product_tmpl_id.name','=', producto_name),\
@@ -377,24 +383,24 @@ class cost_calculation_custom_0(models.Model):
                     
             if(price_list):
                 order_line = self.env['purchase.order.line'].search([('order_id','=',purchase.id),('product_id','=',price_list.product_tmpl_id.product_variant_id.id)])
-                if(is_add_or_edit):
+                if(is_add_or_edit and quantity > 0):
                     if(order_line):
                         order_line.write({
                             'product_qty': quantity
                         })
                     else:
-                        order_line.create({
+                        self.env['purchase.order.line'].create({
                             'order_id': purchase.id,
                             'product_id': price_list.product_tmpl_id.product_variant_id.id,
                             'name': price_list.product_tmpl_id.product_variant_id.display_name,
                             'product_qty': quantity,
-                            #'product_uom': order_line.product_uom.id,
-                            #'price_unit': order_line.price_unit,
+                            'product_uom': price_list.product_tmpl_id.uom_id.id,
+                            'price_unit': price_list.fixed_price,
                             'date_planned': fields.Datetime.to_string(datetime.today()),
                         })
                         #order_line = self.env['purchase.order.line'].new({ 'order_id': purchase.id, 'product_id': price_list.product_tmpl_id.product_variant_id.id })
-                        order_line.onchange_product_id()
-                        order_line.price_unit = price_list.fixed_price  
+                        #order_line.onchange_product_id()
+                        #order_line.price_unit = price_list.fixed_price  
                 else:
                     if(order_line):
                         order_line.unlink()

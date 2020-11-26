@@ -123,6 +123,10 @@
                 </group>
               </page>
             </xpath>
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="x_purchase_medidor_total" groups="base.group_user"/>
+                <field name="x_purchase_montador_total" groups="base.group_user"/>
+            </xpath>
         </field>
     </record>
   </data>
