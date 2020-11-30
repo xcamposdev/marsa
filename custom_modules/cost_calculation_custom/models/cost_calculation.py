@@ -59,6 +59,7 @@ class cost_calculation_custom_0(models.Model):
     x_studio_remates_postventa = fields.Integer(string = "Remates PostVenta", default = 0, store = True)
     x_studio_revisin_postventa = fields.Integer(string = "Revisión PostVenta", default = 0, store = True)
     
+    x_studio_fecha_reunion = fields.Date(string="Fecha Reunión")
     x_studio_medidor = fields.Many2one('res.partner', string = "Medidor", readonly=True)
     x_studio_montador = fields.Many2one('res.partner', string = "Montador", readonly=True)
     x_studio_obtener_datos = fields.Integer( string = 'x_studio_obtener_datos', compute = 'get_obtener_datos')
@@ -78,11 +79,14 @@ class cost_calculation_custom_0(models.Model):
                         tipo = partner.user_ids[0].x_studio_subtipo
                         if(tipo == 'Medidor'):
                             self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
+                            self.x_studio_fecha_reunion = meeting_data.start_date
                         elif(tipo == 'Montador'):
                             self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
+                            self.x_studio_fecha_reunion = meeting_data.start_date
                         elif(tipo == 'Montador plaza' or tipo == 'Partner plaza'):
                             self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
                             self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
+                            self.x_studio_fecha_reunion = meeting_data.start_date
 
         self.get_x_studio_instalacion_extra_onchange()
         self.get_x_studio_aplacados_onchange()
@@ -270,8 +274,10 @@ class cost_calculation_custom_0(models.Model):
         producto_revision_post_venta = self.env['ir.config_parameter'].sudo().get_param('x_producto_revision_postventa')
 
         # purchase order
-        purchase_medidor = self.create_purchase_order(self.x_studio_medidor, 'medidor')
-        purchase_montador = self.create_purchase_order(self.x_studio_montador, 'montador')
+        is_purchase_medidor = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_medicin > 0) or (self.x_studio_medicin == "si")) else False
+        is_purchase_montador = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_montaje > 0) or (self.x_studio_montaje == "si")) else False
+        purchase_medidor = self.crud_purchase_order(self.x_studio_medidor, 'medidor', is_purchase_medidor)
+        purchase_montador = self.crud_purchase_order(self.x_studio_montador, 'montador', is_purchase_montador)
 
         # purchase order line
         is_obra = True if self.x_studio_obra == 'si' else False
@@ -307,7 +313,6 @@ class cost_calculation_custom_0(models.Model):
         if(purchase_montador):
             self.x_purchase_montador_total = purchase_montador.amount_total
     
-
         #Actualizar costos del presupuesto
         if(self.x_studio_obra == 'si'):
             self.x_studio_medicin = 'no'
@@ -331,8 +336,8 @@ class cost_calculation_custom_0(models.Model):
             self.x_studio_revisin_postventa = 0
 
         self.write({
-            'x_medidor_purchase_id': purchase_medidor.id,
-            'x_montador_purchase_id': purchase_montador.id,
+            'x_medidor_purchase_id': purchase_medidor.id if purchase_medidor else False,
+            'x_montador_purchase_id': purchase_montador.id if purchase_montador else False,
             'x_studio_obra': self.x_studio_obra,
             'x_studio_coste_medicin': self.x_studio_coste_medicin,       
             'x_studio_coste_montaje': self.x_studio_coste_montaje,
@@ -358,51 +363,66 @@ class cost_calculation_custom_0(models.Model):
         })
         return self
 
-    def create_purchase_order(self, partner_id, type):
+    def crud_purchase_order(self, partner_id, type, is_add_or_edit):
         purchase = False
-        if(partner_id):
-            if(type == 'medidor'):
-                purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_medidor_purchase_id)])
-            elif(type == 'montador'):
-                purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_montador_purchase_id)])
-            if(not purchase):
-                purchase = self.env['purchase.order'].create({
-                    'partner_id': partner_id.id,
-                    'origin': self.name,
-                    'date_order': datetime.now(),
-                    'state':'draft'
+        if(is_add_or_edit):
+            if(partner_id):
+                if(type == 'medidor'):
+                    purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_medidor_purchase_id)])
+                elif(type == 'montador'):
+                    purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_montador_purchase_id)])
+                if(not purchase):
+                    purchase = self.env['purchase.order'].create({
+                        'partner_id': partner_id.id,
+                        'origin': self.name,
+                        'date_order': self.x_studio_fecha_reunion if self.x_studio_fecha_reunion else datetime.now(),
+                        'state':'draft'
+                    })
+        else:
+            purchase_delete = self.env['purchase.order'].search([('origin','=',self.name),('id','=',partner_id.id)])
+            if purchase_delete:
+                purchase_delete.write({
+                    'state': 'cancel'
                 })
+                purchase_delete.unlink()
+
         return purchase
 
     def crud_purchase_order_line(self, purchase, categoria_padre_name, producto_name, quantity, is_add_or_edit):
         if(purchase):
-            price_list = self.env['product.pricelist.item'].search([('pricelist_id','=',self.pricelist_id.id), \
+            price_list = self.env['product.supplierinfo'].search([
                 ('product_tmpl_id.categ_id.parent_id.name','=', categoria_padre_name),\
                 ('product_tmpl_id.name','=', producto_name),\
-                ('x_studio_presupuestar_a','=',purchase.partner_id.id)], limit=1)
+                ('name','=',purchase.partner_id.id)], limit=1)
                     
             if(price_list):
                 order_line = self.env['purchase.order.line'].search([('order_id','=',purchase.id),('product_id','=',price_list.product_tmpl_id.product_variant_id.id)])
                 if(is_add_or_edit and quantity > 0):
                     if(order_line):
                         order_line.write({
-                            'product_qty': quantity
+                            'product_qty': quantity,
+                            'price_unit': price_list.price
                         })
                     else:
-                        self.env['purchase.order.line'].create({
+                        order_line = self.env['purchase.order.line'].create({
                             'order_id': purchase.id,
                             'product_id': price_list.product_tmpl_id.product_variant_id.id,
                             'name': price_list.product_tmpl_id.product_variant_id.display_name,
                             'product_qty': quantity,
                             'product_uom': price_list.product_tmpl_id.uom_id.id,
-                            'price_unit': price_list.fixed_price,
+                            'price_unit': price_list.price,
                             'date_planned': fields.Datetime.to_string(datetime.today()),
                         })
-                        #order_line = self.env['purchase.order.line'].new({ 'order_id': purchase.id, 'product_id': price_list.product_tmpl_id.product_variant_id.id })
-                        #order_line.onchange_product_id()
-                        #order_line.price_unit = price_list.fixed_price  
+                        order_line.onchange_product_id()
+                        
                 else:
                     if(order_line):
                         order_line.unlink()
 
         return purchase
+
+    @api.depends('order_line.margin')
+    def _product_margin(self):
+        super(cost_calculation_custom_0, self)._product_margin()
+        calculate_margin = self.margin - self.x_purchase_medidor_total - self.x_purchase_montador_total
+        self.margin = calculate_margin if calculate_margin > 0 else 0

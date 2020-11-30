@@ -381,7 +381,8 @@ class calculator_custom_0(models.Model):
                 if(client_data):
                     addr = client_data.address_get(['delivery', 'invoice'])
                     _record_vals['partner_invoice_id'] = addr['invoice']
-                
+                    _record_vals['pricelist_id'] = client_data.property_product_pricelist and client_data.property_product_pricelist.id or False
+                    _record_vals['payment_term_id'] = client_data.property_payment_term_id and client_data.property_payment_term_id.id or False
 
                 if _record_vals.get('name', _('New')) == _('New'):
                     seq_date = None

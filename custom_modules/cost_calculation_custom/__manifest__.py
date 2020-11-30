@@ -9,7 +9,7 @@
     'website': "https://www.develoop.net/",
     'description': """
         - Permite realizar calculo de costes """,
-    "depends": ["sale"],
+    "depends": ["sale",'sale_margin'],
     "data": [
         'views/cost_calculation_custom.xml',
     ],

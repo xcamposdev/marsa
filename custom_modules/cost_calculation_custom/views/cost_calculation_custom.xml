@@ -119,7 +119,7 @@
                   </group>
                 </group>
                 <group>
-                    <button name="save_cost" string="Guardar Costes" type="object" class="oe_highlight" attrs="{'invisible': [('id', '=', False)]}" />
+                    <button name="save_cost" string="Guardar Costes" type="object" class="oe_edit_only oe_highlight" attrs="{'invisible': [('id', '=', False)]}" />
                 </group>
               </page>
             </xpath>
