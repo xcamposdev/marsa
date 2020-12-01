@@ -60,9 +60,9 @@ class cost_calculation_custom_0(models.Model):
     x_studio_revisin_postventa = fields.Integer(string = "Revisión PostVenta", default = 0, store = True)
     
     x_studio_fecha_reunion = fields.Date(string="Fecha Reunión")
-    x_studio_medidor = fields.Many2one('res.partner', string = "Medidor", readonly=True)
-    x_studio_montador = fields.Many2one('res.partner', string = "Montador", readonly=True)
-    x_studio_obtener_datos = fields.Integer( string = 'x_studio_obtener_datos', compute = 'get_obtener_datos')
+    x_studio_medidor = fields.Many2one('res.partner', string = "Medidor")
+    x_studio_montador = fields.Many2one('res.partner', string = "Montador")
+    x_studio_obtener_datos = fields.Integer(string='x_studio_obtener_datos', compute='get_obtener_datos')
 
     x_medidor_purchase_id = fields.Integer(default=0)
     x_montador_purchase_id = fields.Integer(default=0)
@@ -71,6 +71,7 @@ class cost_calculation_custom_0(models.Model):
 
     #obtener medidor y montador
     def get_obtener_datos(self):
+        self.x_studio_obtener_datos = 0
         if(self.x_studio_oportunidad and (not self.x_studio_montador and not self.x_studio_medidor)):
             meeting_data = self.env['calendar.event'].search([('opportunity_id', '=', self.x_studio_oportunidad.id)], { 'order': 'id desc'})
             for lead in meeting_data:
@@ -96,8 +97,6 @@ class cost_calculation_custom_0(models.Model):
         self.get_x_studio_post_cuarzo_onchange()
         self.get_x_studio_remates_post_venta_onchange()
         self.get_x_studio_revision_post_venta_onchange()
-
-        self.x_studio_obtener_datos = 0
 
     
     @api.onchange('order_line')
@@ -309,9 +308,9 @@ class cost_calculation_custom_0(models.Model):
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_revision_post_venta, self.x_studio_revisin_postventa, is_incidencia)
 
         if(purchase_medidor):
-            self.x_purchase_medidor_total = purchase_medidor.amount_total
+            self.x_purchase_medidor_total = purchase_medidor.amount_untaxed
         if(purchase_montador):
-            self.x_purchase_montador_total = purchase_montador.amount_total
+            self.x_purchase_montador_total = purchase_montador.amount_untaxed
     
         #Actualizar costos del presupuesto
         if(self.x_studio_obra == 'si'):

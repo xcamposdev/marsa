@@ -113,8 +113,8 @@
                     <field name="x_studio_revisin_postventa" attrs="{'invisible': ['|', ('x_studio_obra', '=', 'si'),('x_studio_montaje', '!=', 'incidencia')]}" readonly="1" force_save="True"/>
                   </group>
                   <group name="studio_group_right">
-                    <field name="x_studio_medidor" />
-                    <field name="x_studio_montador" />
+                    <field name="x_studio_medidor" readonly="1" />
+                    <field name="x_studio_montador" readonly="1" />
                     <field name="x_studio_obtener_datos" invisible="1" />
                   </group>
                 </group>
