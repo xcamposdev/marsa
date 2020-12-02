@@ -381,12 +381,20 @@ class cost_calculation_custom_0(models.Model):
                 elif(type == 'montador'):
                     purchase = self.env['purchase.order'].search([('origin','=',self.name),('id','=',self.x_montador_purchase_id)])
                 if(not purchase):
-                    purchase = self.env['purchase.order'].create({
-                        'partner_id': partner_id.id,
-                        'origin': self.name,
-                        'date_order': self.x_studio_fecha_reunion if self.x_studio_fecha_reunion else datetime.now(),
-                        'state':'draft'
-                    })
+                    if(type == 'medidor'):
+                        purchase = self.env['purchase.order'].create({
+                            'partner_id': partner_id.id,
+                            'origin': self.name,
+                            'date_order': self.x_studio_fecha_reunion_medidor if self.x_studio_fecha_reunion_medidor else datetime.now(),
+                            'state':'draft'
+                        })
+                    elif(type == 'montador'):
+                        purchase = self.env['purchase.order'].create({
+                            'partner_id': partner_id.id,
+                            'origin': self.name,
+                            'date_order': self.x_studio_fecha_reunion_montador if self.x_studio_fecha_reunion_montador else datetime.now(),
+                            'state':'draft'
+                        })
         else:
             purchase_delete = self.env['purchase.order'].search([('origin','=',self.name),('id','=',partner_id.id)])
             if purchase_delete:
@@ -423,6 +431,7 @@ class cost_calculation_custom_0(models.Model):
                             'date_planned': fields.Datetime.to_string(datetime.today()),
                         })
                         order_line.onchange_product_id()
+                        order_line.product_qty = quantity
                         
                 else:
                     if(order_line):
