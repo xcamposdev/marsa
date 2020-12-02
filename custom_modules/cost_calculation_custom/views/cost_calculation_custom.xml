@@ -116,6 +116,8 @@
                     <field name="x_studio_medidor" />
                     <field name="x_studio_montador" />
                     <field name="x_studio_obtener_datos" invisible="1" />
+                    <field name="x_studio_fecha_reunion_medidor" invisible="1" />
+                    <field name="x_studio_fecha_reunion_montador" invisible="1" />
                   </group>
                 </group>
                 <group>
