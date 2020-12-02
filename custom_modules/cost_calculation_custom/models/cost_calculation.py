@@ -59,9 +59,10 @@ class cost_calculation_custom_0(models.Model):
     x_studio_remates_postventa = fields.Integer(string = "Remates PostVenta", default = 0, store = True)
     x_studio_revisin_postventa = fields.Integer(string = "Revisión PostVenta", default = 0, store = True)
     
-    x_studio_fecha_reunion = fields.Date(string="Fecha Reunión")
-    x_studio_medidor = fields.Many2one('res.partner', string = "Medidor")
-    x_studio_montador = fields.Many2one('res.partner', string = "Montador")
+    x_studio_fecha_reunion_medidor = fields.Date(string="Fecha Reunión Medidor")
+    x_studio_fecha_reunion_montador = fields.Date(string="Fecha Reunión Montador")
+    x_studio_medidor = fields.Many2one('res.partner', string = "Medidor", readonly=True)
+    x_studio_montador = fields.Many2one('res.partner', string = "Montador", readonly=True)
     x_studio_obtener_datos = fields.Integer(string='x_studio_obtener_datos', compute='get_obtener_datos')
 
     x_medidor_purchase_id = fields.Integer(default=0)
@@ -72,7 +73,7 @@ class cost_calculation_custom_0(models.Model):
     #obtener medidor y montador
     def get_obtener_datos(self):
         self.x_studio_obtener_datos = 0
-        if(self.x_studio_oportunidad and (not self.x_studio_montador and not self.x_studio_medidor)):
+        if self.x_studio_oportunidad and not self.x_studio_medidor:
             meeting_data = self.env['calendar.event'].search([('opportunity_id', '=', self.x_studio_oportunidad.id)], { 'order': 'id desc'})
             for lead in meeting_data:
                 for partner in lead.partner_ids:
@@ -80,14 +81,23 @@ class cost_calculation_custom_0(models.Model):
                         tipo = partner.user_ids[0].x_studio_subtipo
                         if(tipo == 'Medidor'):
                             self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
-                            self.x_studio_fecha_reunion = meeting_data.start_date
-                        elif(tipo == 'Montador'):
+                            self.x_studio_fecha_reunion_medidor = lead.start_date
+                        elif(tipo == 'Montador plaza' or tipo == 'Partner plaza'):
+                            self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
+                            self.x_studio_fecha_reunion_medidor = lead.start_date
+        
+        if self.x_studio_oportunidad and not self.x_studio_montador:
+            meeting_data = self.env['calendar.event'].search([('opportunity_id', '=', self.x_studio_oportunidad.id)], { 'order': 'id desc'})
+            for lead in meeting_data:
+                for partner in lead.partner_ids:
+                    if(partner.user_ids):
+                        tipo = partner.user_ids[0].x_studio_subtipo
+                        if(tipo == 'Montador'):
                             self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
-                            self.x_studio_fecha_reunion = meeting_data.start_date
+                            self.x_studio_fecha_reunion_montador = lead.start_date
                         elif(tipo == 'Montador plaza' or tipo == 'Partner plaza'):
                             self.x_studio_montador = partner.parent_id.id if partner.parent_id else partner.id
-                            self.x_studio_medidor = partner.parent_id.id if partner.parent_id else partner.id
-                            self.x_studio_fecha_reunion = meeting_data.start_date
+                            self.x_studio_fecha_reunion_montador = lead.start_date
 
         self.get_x_studio_instalacion_extra_onchange()
         self.get_x_studio_aplacados_onchange()
@@ -422,6 +432,7 @@ class cost_calculation_custom_0(models.Model):
 
     @api.depends('order_line.margin')
     def _product_margin(self):
-        super(cost_calculation_custom_0, self)._product_margin()
-        calculate_margin = self.margin - self.x_purchase_medidor_total - self.x_purchase_montador_total
-        self.margin = calculate_margin if calculate_margin > 0 else 0
+        for record in self:
+            super(cost_calculation_custom_0, record)._product_margin()
+            calculate_margin = record.margin - record.x_purchase_medidor_total - record.x_purchase_montador_total
+            record.margin = calculate_margin if calculate_margin > 0 else 0
