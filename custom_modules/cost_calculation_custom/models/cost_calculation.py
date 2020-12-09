@@ -107,7 +107,7 @@ class cost_calculation_custom_0(models.Model):
         self.get_x_studio_post_cuarzo_onchange()
         self.get_x_studio_remates_post_venta_onchange()
         self.get_x_studio_revision_post_venta_onchange()
-        self._product_margin()
+        self.calculate_product_margin()
     
     @api.onchange('order_line')
     def x_studio_order_line_onchange(self):
@@ -119,6 +119,7 @@ class cost_calculation_custom_0(models.Model):
         self.get_x_studio_post_cuarzo_onchange()
         self.get_x_studio_remates_post_venta_onchange()
         self.get_x_studio_revision_post_venta_onchange()
+        self.calculate_product_margin()
 
     #datetime
     def convert_to_utc(self, local_datetime=None):
@@ -439,8 +440,8 @@ class cost_calculation_custom_0(models.Model):
 
         return purchase
 
-    @api.depends('order_line.margin')
-    def _product_margin(self):
+    # @api.depends('order_line.margin')
+    def calculate_product_margin(self):
         for record in self:
             super(cost_calculation_custom_0, record)._product_margin()
             calculate_margin = record.margin - record.x_purchase_medidor_total - record.x_purchase_montador_total
