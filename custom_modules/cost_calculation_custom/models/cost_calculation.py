@@ -107,7 +107,7 @@ class cost_calculation_custom_0(models.Model):
         self.get_x_studio_post_cuarzo_onchange()
         self.get_x_studio_remates_post_venta_onchange()
         self.get_x_studio_revision_post_venta_onchange()
-
+        self._product_margin()
     
     @api.onchange('order_line')
     def x_studio_order_line_onchange(self):
