@@ -287,7 +287,8 @@ class calculator_custom_0(models.Model):
                 'x_studio_ancho_cm': self.order_line[pos].x_studio_ancho_cm,
                 'discount': self.order_line[pos].discount,
                 'price_unit': self.order_line[pos].price_unit,
-                'price_subtotal': self.order_line[pos].price_subtotal
+                'price_subtotal': self.order_line[pos].price_subtotal,
+                'purchase_price': self.order_line[pos].purchase_price
                 })
             if(self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name.lower().encode('utf-8') == seccion_text.lower().encode('utf-8')):
                 is_in_section = True
