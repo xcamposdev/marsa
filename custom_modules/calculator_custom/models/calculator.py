@@ -287,7 +287,8 @@ class calculator_custom_0(models.Model):
                 'x_studio_ancho_cm': self.order_line[pos].x_studio_ancho_cm,
                 'discount': self.order_line[pos].discount,
                 'price_unit': self.order_line[pos].price_unit,
-                'price_subtotal': self.order_line[pos].price_subtotal
+                'price_subtotal': self.order_line[pos].price_subtotal,
+                'purchase_price': self.order_line[pos].purchase_price
                 })
             if(self.order_line[pos].display_type == 'line_section' and self.order_line[pos].name.lower().encode('utf-8') == seccion_text.lower().encode('utf-8')):
                 is_in_section = True
@@ -381,7 +382,8 @@ class calculator_custom_0(models.Model):
                 if(client_data):
                     addr = client_data.address_get(['delivery', 'invoice'])
                     _record_vals['partner_invoice_id'] = addr['invoice']
-                
+                    _record_vals['pricelist_id'] = client_data.property_product_pricelist and client_data.property_product_pricelist.id or False
+                    _record_vals['payment_term_id'] = client_data.property_payment_term_id and client_data.property_payment_term_id.id or False
 
                 if _record_vals.get('name', _('New')) == _('New'):
                     seq_date = None
