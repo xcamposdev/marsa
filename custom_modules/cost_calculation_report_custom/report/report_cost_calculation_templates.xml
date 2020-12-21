@@ -19,52 +19,48 @@
                             </div>
                         </div>
                         <div class="row mt16 mb16">
-                            <div class="col-6">
+                            <div class="col-12">
                                 <strong>MEDIDOR/MONTADOR:</strong> 
                                 <span t-esc="data['name']"/> 
                             </div>
                         </div>
 
                         <t t-set="current_subtotal" t-value="0"/>
-                        <div class="row">
-                            <div class="col-8">
-                                <table class="table table-sm o_main_table">
-                                    <thead>
-                                        <tr class="bg-200">
-                                            <th name="th_oportunidad" class="text-left"><strong>OPORTUNIDAD</strong></th>
-                                            <th name="th_fecha" class="text-left"><strong>FECHA</strong></th>
-                                            <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-set="current_subtotal" t-value="0"/>
-                                        <t t-foreach="data['purchase']" t-as="line">
-                                            <t t-set="current_subtotal" t-value="current_subtotal + line['importe']"/>
-                                            <tr class="bg-white text-black">
-                                                <td class="text-left bg-white text-black border-right border-dark">
-                                                    <span t-esc="line['oportunidad']"/>
-                                                </td>
-                                                <td class="text-left bg-white text-black">
-                                                    <span t-esc="line['purchase_date_order']"/>
-                                                </td>
-                                                <td class="text-right bg-white text-black">
-                                                    <span t-esc="line['importe']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                                <table class="table table-sm">
-                                    <tr>
-                                        <td class="bg-white text-black border-right-0"><strong>TOTAL MONTAJES</strong></td>
-                                        <td class="bg-white text-black border-right-0"/>
+                        <table class="table table-sm o_main_table" style="width:80%">
+                            <thead>
+                                <tr class="bg-200">
+                                    <th name="th_oportunidad" class="text-left"><strong>OPORTUNIDAD</strong></th>
+                                    <th name="th_fecha" class="text-left"><strong>FECHA</strong></th>
+                                    <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="current_subtotal" t-value="0"/>
+                                <t t-foreach="data['purchase']" t-as="line">
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line['importe']"/>
+                                    <tr class="bg-white text-black">
+                                        <td class="text-left bg-white text-black border-right border-dark">
+                                            <span t-esc="line['oportunidad']"/>
+                                        </td>
+                                        <td class="text-left bg-white text-black">
+                                            <span t-esc="line['purchase_date_order']"/>
+                                        </td>
                                         <td class="text-right bg-white text-black">
-                                            <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            <span t-esc="line['importe']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                         </td>
                                     </tr>
-                                </table>
-                            </div>
-                        </div>
+                                </t>
+                            </tbody>
+                        </table>
+                        <table class="table table-sm" style="width:80%">
+                            <tr>
+                                <td class="bg-white text-black border-right-0"><strong>TOTAL MONTAJES</strong></td>
+                                <td class="bg-white text-black border-right-0"/>
+                                <td class="text-right bg-white text-black">
+                                    <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
 
 
                         <div class="row mt32 mb32">
