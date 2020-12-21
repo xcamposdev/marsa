@@ -32,7 +32,7 @@
                                     <thead>
                                         <tr class="bg-200">
                                             <th name="th_oportunidad" class="text-left"><strong>OPORTUNIDAD</strong></th>
-                                            <th name="th_fecha" class="text-center"><strong>FECHA</strong></th>
+                                            <th name="th_fecha" class="text-left"><strong>FECHA</strong></th>
                                             <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
                                         </tr>
                                     </thead>
@@ -40,14 +40,14 @@
                                         <t t-set="current_subtotal" t-value="0"/>
                                         <t t-foreach="data['purchase']" t-as="line">
                                             <t t-set="current_subtotal" t-value="current_subtotal + line['importe']"/>
-                                            <tr>
-                                                <td class="text-left">
+                                            <tr class="bg-white text-black">
+                                                <td class="text-left bg-white text-black border-right border-dark">
                                                     <span t-esc="line['oportunidad']"/>
                                                 </td>
-                                                <td class="text-center">
+                                                <td class="text-left bg-white text-black">
                                                     <span t-esc="line['purchase_date_order']"/>
                                                 </td>
-                                                <td class="text-right">
+                                                <td class="text-right bg-white text-black">
                                                     <span t-esc="line['importe']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                                 </td>
                                             </tr>
@@ -56,17 +56,15 @@
                                 </table>
                                 <table class="table table-sm">
                                     <tr>
-                                        <td name="td_subtotal_label"><strong>TOTAL MONTAJES</strong></td>
-                                        <td></td>
-                                        <td class="text-right">
+                                        <td class="bg-white text-black border-right-0"><strong>TOTAL MONTAJES</strong></td>
+                                        <td class="bg-white text-black border-right-0"/>
+                                        <td class="text-right bg-white text-black">
                                             <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                         </td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-
-                        
 
 
                         <div class="row mt32 mb32">
@@ -80,9 +78,9 @@
                         <table class="table table-sm o_main_table">
                             <thead>
                                 <tr class="bg-200">
-                                    <th name="th_oportunidad"><strong>OPORTUNIDAD</strong></th>
-                                    <th name="th_fecha"><strong>FECHA</strong></th>
-                                    <th name="th_concepto" class="text-center"><strong>CONCEPTO</strong></th>
+                                    <th name="th_oportunidad" class="text-left"><strong>OPORTUNIDAD</strong></th>
+                                    <th name="th_fecha" class="text-left"><strong>FECHA</strong></th>
+                                    <th name="th_concepto" class="text-left"><strong>CONCEPTO</strong></th>
                                     <th name="th_cantidad" class="text-right"><strong>CANTIDAD</strong></th>
                                     <th name="th_precio" class="text-right"><strong>PRECIO</strong></th>
                                     <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
@@ -95,7 +93,7 @@
                                             <td class="text-left">
                                                 <span t-esc="line['oportunidad']"/>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-left">
                                                 <span t-esc="line['purchase_date_order']"/>
                                             </td>
                                             <td></td>
@@ -140,13 +138,13 @@
                     
                         <table class="table table-sm">
                             <tr>
-                                <td><strong>Total General</strong></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-right">
+                                <td class="border-right-0"><strong>Total General</strong></td>
+                                <td class="border-right-0"></td>
+                                <td class="border-right-0"></td>
+                                <td class="border-right-0"></td>
+                                <td class="border-right-0"></td>
+                                <td class="border-right-0"></td>
+                                <td class="text-right bg-white">
                                     <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                 </td>
                             </tr>
