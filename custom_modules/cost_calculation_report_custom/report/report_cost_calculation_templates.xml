@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cost_calculation_report_custom.print_cost_calculation_reportpdf">
+        <t t-call="web.html_container">
+            <t t-set="o" t-value="docs[0]"/>
+            <t t-set="datas" t-value="docs.get_lines_custom()" />
+            <t t-foreach="datas" t-as="data">
+                <t t-call="web.external_layout">
+                    
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-6">
+                                <u>
+                                    <strong>INFORME RESUMEN TAREAS REALIZADAS</strong>
+                                </u>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>FECHA:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>  
+                            </div>
+                        </div>
+                        <div class="row mt16 mb16">
+                            <div class="col-6">
+                                <strong>MEDIDOR/MONTADOR:</strong> 
+                                <span t-esc="data['name']"/> 
+                            </div>
+                        </div>
+
+                        <t t-set="current_subtotal" t-value="0"/>
+                        <div class="row">
+                            <div class="col-8">
+                                <table class="table table-sm o_main_table">
+                                    <thead>
+                                        <tr class="bg-200">
+                                            <th name="th_oportunidad" class="text-left"><strong>OPORTUNIDAD</strong></th>
+                                            <th name="th_fecha" class="text-center"><strong>FECHA</strong></th>
+                                            <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="current_subtotal" t-value="0"/>
+                                        <t t-foreach="data['purchase']" t-as="line">
+                                            <t t-set="current_subtotal" t-value="current_subtotal + line['importe']"/>
+                                            <tr>
+                                                <td class="text-left">
+                                                    <span t-esc="line['oportunidad']"/>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span t-esc="line['purchase_date_order']"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-esc="line['importe']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td name="td_subtotal_label"><strong>TOTAL MONTAJES</strong></td>
+                                        <td></td>
+                                        <td class="text-right">
+                                            <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        
+
+
+                        <div class="row mt32 mb32">
+                            <div class="col-12">
+                                <u>
+                                    <strong>INFORME DETALLE TAREAS REALIZADAS</strong>
+                                </u>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr class="bg-200">
+                                    <th name="th_oportunidad"><strong>OPORTUNIDAD</strong></th>
+                                    <th name="th_fecha"><strong>FECHA</strong></th>
+                                    <th name="th_concepto" class="text-center"><strong>CONCEPTO</strong></th>
+                                    <th name="th_cantidad" class="text-right"><strong>CANTIDAD</strong></th>
+                                    <th name="th_precio" class="text-right"><strong>PRECIO</strong></th>
+                                    <th name="th_importe" class="text-right"><strong>IMPORTE</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data['purchase']" t-as="line">
+                                    <tr>
+                                        <t>
+                                            <td class="text-left">
+                                                <span t-esc="line['oportunidad']"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-esc="line['purchase_date_order']"/>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </t>
+                                    </tr>
+                                    <t t-foreach="line['purchase_order_line']" t-as="line_detail">
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-left">
+                                                <span t-esc="line_detail['name']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line_detail['quantity']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line_detail['price']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line_detail['price_subtotal']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t>
+                                        <tr>
+                                            <td class="text-left"><strong>Total Oportunidad</strong></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-right">
+                                                <span t-esc="line['importe']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Total General</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">
+                                    <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
