@@ -410,7 +410,7 @@ class cost_calculation_custom_0(models.Model):
         if(purchase):
             price_list = self.env['product.supplierinfo'].search([
                 ('product_tmpl_id.categ_id.parent_id.name','=', categoria_padre_name),\
-                ('product_tmpl_id.name','=', producto_name),\
+                ('product_tmpl_id.name','ilike', producto_name),\
                 ('name','=',purchase.partner_id.id)], limit=1)
                     
             if(price_list):
