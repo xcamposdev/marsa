@@ -1,0 +1,10 @@
+<odoo>
+    <report id="print_cost_calculation_report"
+        	string="Informe de Costes"
+        	model="purchase.order"
+        	report_type="qweb-pdf"
+        	name="cost_calculation_report_custom.print_cost_calculation_reportpdf"
+        	file="cost_calculation_report_custom.print_cost_calculation_reportpdf"
+        	menu="True"
+			print_report_name="'Informe de Coste'"/>
+</odoo>
