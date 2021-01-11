@@ -288,8 +288,8 @@ class cost_calculation_custom_0(models.Model):
         producto_revision_post_venta = self.env['ir.config_parameter'].sudo().get_param('x_producto_revision_postventa')
 
         # purchase order
-        is_purchase_medidor = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_medicin > 0) or (self.x_studio_medicin == "si")) else False
-        is_purchase_montador = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_montaje > 0) or (self.x_studio_montaje == "si")) else False
+        is_purchase_medidor = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_medicin > 0) or (self.x_studio_medicin == "si") or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "incidencia")) else False
+        is_purchase_montador = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_montaje > 0) or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "incidencia")) else False
         purchase_medidor = self.crud_purchase_order(self.x_studio_medidor, 'medidor', is_purchase_medidor)
         purchase_montador = self.crud_purchase_order(self.x_studio_montador, 'montador', is_purchase_montador)
 
@@ -305,9 +305,9 @@ class cost_calculation_custom_0(models.Model):
         purchase_medidor = self.crud_purchase_order_line(purchase_medidor, categoria_costes, producto_coronas, self.x_studio_coronas_medicin, is_medicion)
         purchase_medidor = self.crud_purchase_order_line(purchase_medidor, categoria_costes, producto_2_medicion, 1, is_2_medicion)
 
-        is_montador = True if self.x_studio_montaje == "si" or self.x_studio_montaje == "incidencia" else False
+        is_montador = True if self.x_studio_montaje == "si" else False
         is_3_pax = True if is_montador and self.x_studio_tercera_persona == "si" else False
-        is_incidencia = True if self.x_studio_montaje == "si" and self.x_studio_montaje == "incidencia" else False
+        is_incidencia = True if self.x_studio_montaje == "incidencia" else False
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_tarea_montador, 1, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_km, self.x_studio_km_montaje, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_coronas, self.x_studio_coronas_montaje, is_montador)
