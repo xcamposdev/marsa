@@ -17,9 +17,9 @@
         <field name="key">x_producto_conexiones_post_cuarzo</field>
         <field name="value">CONEXIONES</field>
     </record>
-    <record id="x_producto_remates_postventa" model="ir.config_parameter">
-        <field name="key">x_producto_remates_postventa</field>
-        <field name="value">REMATES POSTVENTA</field>
+    <record id="x_producto_2do_viaje" model="ir.config_parameter">
+        <field name="key">x_producto_2do_viaje</field>
+        <field name="value">2º VIAJE</field>
     </record>
     <record id="x_producto_revision_postventa" model="ir.config_parameter">
         <field name="key">x_producto_revision_postventa</field>

@@ -56,7 +56,7 @@ class cost_calculation_custom_0(models.Model):
         ('no','No')
         ], string = "Tercera Persona", default='no')
 
-    x_studio_remates_postventa = fields.Integer(string = "Remates PostVenta", default = 0, store = True)
+    x_studio_remates_postventa = fields.Integer(string = "2º VIAJE", default = 0, store = True)
     x_studio_revisin_postventa = fields.Integer(string = "Revisión PostVenta", default = 0, store = True)
     
     x_studio_fecha_reunion_medidor = fields.Datetime(string="Fecha Reunión Medidor")
@@ -315,7 +315,7 @@ class cost_calculation_custom_0(models.Model):
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_desmontar, self.x_studio_desmontar, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_post_cuarzo, self.x_studio_post_cuarzo, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_3_persona, 1, is_3_pax)
-        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_remate_post_venta, self.x_studio_remates_postventa, is_incidencia)
+        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_remate_post_venta, 1, is_incidencia)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_revision_post_venta, self.x_studio_revisin_postventa, is_incidencia)
 
         if(purchase_medidor):
