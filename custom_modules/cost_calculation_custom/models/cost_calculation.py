@@ -56,7 +56,7 @@ class cost_calculation_custom_0(models.Model):
         ('no','No')
         ], string = "Tercera Persona", default='no')
 
-    x_studio_remates_postventa = fields.Integer(string = "2º VIAJE", default = 0, store = True)
+    x_studio_remates_postventa = fields.Integer(string = "2º Viaje", default = 0, store = True)
     x_studio_revisin_postventa = fields.Integer(string = "Revisión PostVenta", default = 0, store = True)
     
     x_studio_fecha_reunion_medidor = fields.Datetime(string="Fecha Reunión Medidor")
@@ -143,8 +143,12 @@ class cost_calculation_custom_0(models.Model):
     #coronas por montaje
     @api.onchange('x_studio_montaje', 'x_studio_km_montaje')
     def x_studio_montaje_onchange(self):
+        self.x_studio_remates_postventa = 0
         if(self.x_studio_montador.x_studio_km_coronas > 0 and self.x_studio_montaje == 'si' and self.x_studio_km_montaje > self.x_studio_montador.x_studio_km_coronas):
             self.x_studio_coronas_montaje = math.ceil((self.x_studio_km_montaje / self.x_studio_montador.x_studio_km_coronas) - 1)
+        elif self.x_studio_montaje == "incidencia":
+            self.x_studio_coronas_montaje = 0
+            self.x_studio_remates_postventa = 1
         else:
             self.x_studio_coronas_montaje = 0
 
