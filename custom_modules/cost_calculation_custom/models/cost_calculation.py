@@ -70,7 +70,6 @@ class cost_calculation_custom_0(models.Model):
     x_purchase_medidor_total = fields.Float(string="Medidor",default=0)
     x_purchase_montador_total = fields.Float(string="Montador",default=0)
 
-
     #obtener medidor y montador
     def get_obtener_datos(self):
         self.x_studio_obtener_datos = 0

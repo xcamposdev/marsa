@@ -1,0 +1,10 @@
+<odoo>
+    <report id="comprobacion_incidencias_report"
+        	string="Comprobación e incidencias"
+        	model="sale.order"
+        	report_type="qweb-pdf"
+        	name="custom_production_improve.print_comprobacion_incidencias_pdf"
+        	file="custom_production_improve.print_comprobacion_incidencias_pdf"
+        	menu="True"
+			print_report_name="'Comprobación e incidencias'"/>
+</odoo>
