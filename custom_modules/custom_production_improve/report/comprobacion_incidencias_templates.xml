@@ -17,7 +17,14 @@
                                 <p><label>REF EXPED:</label> <span class="small" t-field="o.x_studio_oportunidad"></span></p>
                                 <p><label>CLIENTE:</label> <span class="small" t-field="o.partner_id"></span></p>
                                 <!-- <div > -->
-                                <p t-if="o.partner_id.type == 'delivery'"><label>DIRECCIÓN:</label> <span class="small" t-field="o.partner_id.street"></span>, <span class="small" t-field="o.partner_id.zip"></span> <span class="small" t-field="o.partner_id.state_id"></span></p>
+                                <p t-if="o.partner_id.type == 'delivery'">
+                                  <label>DIRECCIÓN:</label> 
+                                    <span class="small" t-field="o.partner_id.street"></span>
+                                    <t t-if="(o.partner_id.street and o.partner_id.zip) or (o.partner_id.street and o.partner_id.state_id)">,</t>
+                                    <span class="small" t-field="o.partner_id.zip"></span>
+                                    <t t-if="o.partner_id.zip and o.partner_id.state_id">,</t>
+                                    <span class="small" t-field="o.partner_id.state_id"></span>
+                                  </p>
                             </div>
                             <div class="col-6">
                                 <p><label>TIENDA:</label> <span class="small" t-field="o.partner_id.parent_id"></span></p>
