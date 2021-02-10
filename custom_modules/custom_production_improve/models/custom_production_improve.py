@@ -34,18 +34,19 @@ class custom_production_improve(models.Model):
         
         if(production.origin):
             sale_order = self.env['sale.order'].search([('name','=',production.origin)])
-            opportunity = sale_order.x_studio_oportunidad.id
+            if sale_order and sale_order.x_studio_oportunidad:
+                opportunity = sale_order.x_studio_oportunidad.id
 
-            attachments = self.env['ir.attachment'].search([('res_id','=', opportunity), ('res_model','=', 'crm.lead'), ('name','like', 'PL_')])
+                attachments = self.env['ir.attachment'].search([('res_id','=', opportunity), ('res_model','=', 'crm.lead'), ('name','like', 'PL_')])
 
-            for attach in attachments:
-                self.env['ir.attachment'].create({
-                        'name': attach.name,
-                        'type': attach.type,
-                        'res_model': 'mrp.production',
-                        'res_id': production.id,
-                        'mimetype': attach.mimetype
-                    })
+                for attach in attachments:
+                    self.env['ir.attachment'].create({
+                            'name': attach.name,
+                            'type': attach.type,
+                            'res_model': 'mrp.production',
+                            'res_id': production.id,
+                            'mimetype': attach.mimetype
+                        })
 
         return production 
     
