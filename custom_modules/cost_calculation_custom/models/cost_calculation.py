@@ -309,9 +309,10 @@ class cost_calculation_custom_0(models.Model):
         is_montador = True if self.x_studio_montaje == "si" else False
         is_3_pax = True if is_montador and self.x_studio_tercera_persona == "si" else False
         is_incidencia = True if self.x_studio_montaje == "incidencia" else False
+        is_incidencia_custom = True if self.x_studio_montaje == "incidencia" or self.x_studio_montaje == "si" else False
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_tarea_montador, 1, is_montador)
-        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_km, self.x_studio_km_montaje, is_montador)
-        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_coronas, self.x_studio_coronas_montaje, is_montador)
+        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_km, self.x_studio_km_montaje, is_incidencia_custom)
+        purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_coronas, self.x_studio_coronas_montaje, is_incidencia_custom)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_instalacion_extra, self.x_studio_instalacin_extra, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_colocacion_aplacados, self.x_studio_colocacin_aplacados, is_montador)
         purchase_montador = self.crud_purchase_order_line(purchase_montador, categoria_costes, producto_medir_aplacados, self.x_studio_medir_aplacados, is_montador)
