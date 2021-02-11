@@ -147,7 +147,8 @@ class cost_calculation_custom_0(models.Model):
         if(self.x_studio_montador.x_studio_km_coronas > 0 and self.x_studio_montaje == 'si' and self.x_studio_km_montaje > self.x_studio_montador.x_studio_km_coronas):
             self.x_studio_coronas_montaje = math.ceil((self.x_studio_km_montaje / self.x_studio_montador.x_studio_km_coronas) - 1)
         elif self.x_studio_montaje == "incidencia":
-            self.x_studio_coronas_montaje = 0
+            if(self.x_studio_montador.x_studio_km_coronas > 0 and self.x_studio_km_montaje > self.x_studio_montador.x_studio_km_coronas):
+                self.x_studio_coronas_montaje = math.ceil((self.x_studio_km_montaje / self.x_studio_montador.x_studio_km_coronas) - 1)
             self.x_studio_remates_postventa = 1
         else:
             self.x_studio_coronas_montaje = 0
@@ -215,7 +216,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_patas')
         _total_patas = 0
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_patas += line.product_uom_qty
         self.x_studio_patas = _total_patas
     
@@ -224,7 +225,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_bajo_encimera')
         _total_bajo_encimera = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_bajo_encimera += line.product_uom_qty
         self.x_studio_bajo_encimera = _total_bajo_encimera       
                 
@@ -233,7 +234,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_desmontar')
         _total_desmontar = 0
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                 _total_desmontar += line.product_uom_qty
         self.x_studio_desmontar = _total_desmontar
                 
@@ -242,7 +243,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_conexiones_post_cuarzo')
         _total_post_cuarzo = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_post_cuarzo += line.product_uom_qty
         self.x_studio_post_cuarzo = _total_post_cuarzo        
     
@@ -251,7 +252,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_remates_postventa')
         _total_remate_postventa = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_remate_postventa += line.product_uom_qty
         self.x_studio_remate_postventa = _total_remate_postventa
         
@@ -260,7 +261,7 @@ class cost_calculation_custom_0(models.Model):
         product_name = self.env['ir.config_parameter'].sudo().get_param('x_producto_revision_postventa')
         _total_revision_postventa = 0 
         for line in self.order_line:
-            if(line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
+            if(line.display_type and line.display_type != 'line_section' and line.display_type != 'line_note' and product_name.lower().encode('utf-8') in line.product_id.name.lower().encode('utf-8')):
                _total_revision_postventa += line.product_uom_qty               
         self.x_studio_revisin_postventa = _total_revision_postventa
 
@@ -343,8 +344,8 @@ class cost_calculation_custom_0(models.Model):
             self.x_studio_medir_aplacados = 0
             self.x_studio_patas = 0
             self.x_studio_bajo_encimera = 0
-            self.x_studio_desmontar = 0
-            self.x_studio_post_cuarzo = 0.0
+            # self.x_studio_desmontar = 0
+            # self.x_studio_post_cuarzo = 0.0
             self.x_studio_tercera_persona = 'no'
             self.x_studio_remates_postventa = 0
             self.x_studio_revisin_postventa = 0
