@@ -43,6 +43,7 @@ class custom_production_improve(models.Model):
                     self.env['ir.attachment'].create({
                             'name': attach.name,
                             'type': attach.type,
+                            'datas': attach.datas,
                             'res_model': 'mrp.production',
                             'res_id': production.id,
                             'mimetype': attach.mimetype
@@ -64,6 +65,7 @@ class custom_production_improve(models.Model):
                 self.env['ir.attachment'].create({
                         'name': attach.name,
                         'type': attach.type,
+                        'datas': attach.datas,
                         'res_model': 'mrp.production',
                         'res_id': production.id,
                         'mimetype': attach.mimetype
@@ -75,8 +77,10 @@ class custom_production_stock_available(models.TransientModel):
     
     _inherit = 'mrp.product.produce.line'
 
-    x_total_stock_available = fields.Float(string='Stock disponible', readonly = True)
-
-    @api.onchange('lot_id')
+    x_total_stock_available = fields.Float(string='Stock disponible', readonly = True, compute="get_stock_available")
+    
+    @api.depends('lot_id')
     def get_stock_available(self):
-        self.x_total_stock_available = self.lot_id.product_qty
+        self.x_total_stock_available = 0
+        if(self.lot_id):
+            self.x_total_stock_available = self.lot_id.product_qty

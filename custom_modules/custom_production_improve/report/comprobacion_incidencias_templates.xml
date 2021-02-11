@@ -16,26 +16,33 @@
                             <div class="col-6">
                                 <p><label>REF EXPED:</label> <span class="small" t-field="o.x_studio_oportunidad"></span></p>
                                 <p><label>CLIENTE:</label> <span class="small" t-field="o.partner_id"></span></p>
-                                <!-- <div > -->
-                                <p t-if="o.partner_id.type == 'delivery'">
+                                <p>
                                   <label>DIRECCIÓN:</label> 
-                                    <span class="small" t-field="o.partner_id.street"></span>
-                                    <t t-if="(o.partner_id.street and o.partner_id.zip) or (o.partner_id.street and o.partner_id.state_id)">,</t>
-                                    <span class="small" t-field="o.partner_id.zip"></span>
-                                    <t t-if="o.partner_id.zip and o.partner_id.state_id">,</t>
-                                    <span class="small" t-field="o.partner_id.state_id"></span>
-                                  </p>
+                                    <span class="small" t-field="o.partner_shipping_id.street"></span>
+                                    <t t-if="(o.partner_shipping_id.street and o.partner_shipping_id.zip) or (o.partner_shipping_id.street and o.partner_shipping_id.state_id)">,</t>
+                                    <span class="small" t-field="o.partner_shipping_id.zip"></span>
+                                    <t t-if="o.partner_shipping_id.zip and o.partner_shipping_id.state_id">,</t>
+                                    <span class="small" t-field="o.partner_shipping_id.state_id"></span>
+                                </p>
                             </div>
                             <div class="col-6">
                                 <p><label>TIENDA:</label> <span class="small" t-field="o.partner_id.parent_id"></span></p>
-                                <p t-if="o.x_studio_oportunidad">
-                                  <label>FECHA:</label> <span class="small" t-field="o.x_studio_oportunidad.x_studio_fecha_montaje_muebles"></span>
-                                </p>
-                                <p t-if="not o.x_studio_oportunidad">
-                                  <label>FECHA:</label> <span class="small" t-esc="time.strftime('%d/%m/%Y')"></span>
-                                </p>
-                                <p t-if="o.partner_id.type == 'delivery'"><label>TEL:</label> <span class="small" t-field="o.partner_id.phone"></span></p>
-                                <p t-if="o.partner_id.type != 'delivery'"><label>MÓVIL:</label> <span class="small" t-field="o.partner_id.mobile"></span></p>
+                                <t t-if="o.x_studio_oportunidad">
+                                    <p>
+                                      <label>FECHA:</label> <span class="small" t-field="o.x_studio_oportunidad.x_studio_fecha_montaje_muebles"></span>
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                   <p>
+                                      <label>FECHA:</label> <span class="small" t-esc="time.strftime('%d/%m/%Y')"></span>
+                                   </p>
+                                </t>
+                                <t t-if="o.partner_shipping_id.phone">
+                                  <p><label>TEL:</label> <span class="small" t-field="o.partner_shipping_id.phone"></span></p>
+                                </t>
+                                <t t-else="">
+                                  <p><label>MÓVIL:</label> <span class="small" t-field="o.partner_shipping_id.mobile"></span></p>
+                                </t>
                             </div>
                         </t>
                     </div>
