@@ -290,7 +290,7 @@ class cost_calculation_custom_0(models.Model):
 
         # purchase order
         is_purchase_medidor = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_medicin > 0) or (self.x_studio_medicin == "si") or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "incidencia")) else False
-        is_purchase_montador = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_montaje > 0) or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "incidencia")) else False
+        is_purchase_montador = True if ((self.x_studio_obra == 'si' and self.x_studio_coste_montaje > 0) or (self.x_studio_montaje == "si") or (self.x_studio_montaje == "no") or (self.x_studio_montaje == "incidencia")) else False
         purchase_medidor = self.crud_purchase_order(self.x_studio_medidor, 'medidor', is_purchase_medidor)
         purchase_montador = self.crud_purchase_order(self.x_studio_montador, 'montador', is_purchase_montador)
 
@@ -345,8 +345,6 @@ class cost_calculation_custom_0(models.Model):
             self.x_studio_medir_aplacados = 0
             self.x_studio_patas = 0
             self.x_studio_bajo_encimera = 0
-            # self.x_studio_desmontar = 0
-            # self.x_studio_post_cuarzo = 0.0
             self.x_studio_tercera_persona = 'no'
             self.x_studio_remates_postventa = 0
             self.x_studio_revisin_postventa = 0
