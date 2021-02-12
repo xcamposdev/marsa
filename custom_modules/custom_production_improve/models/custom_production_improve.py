@@ -51,28 +51,6 @@ class custom_production_improve(models.Model):
 
         return production 
     
-    @api.model
-    def write(self, values):
-        production = super(custom_production_improve, self).create(values)
-        
-        if(production.origin):
-            sale_order = self.env['sale.order'].search([('name','=',production.origin)])
-            opportunity = sale_order.x_studio_oportunidad.id
-
-            attachments = self.env['ir.attachment'].search([('res_id','=', opportunity), ('res_model','=', 'crm.lead'), ('name','like', 'PL_')])
-
-            for attach in attachments:
-                self.env['ir.attachment'].create({
-                        'name': attach.name,
-                        'type': attach.type,
-                        'datas': attach.datas,
-                        'res_model': 'mrp.production',
-                        'res_id': production.id,
-                        'mimetype': attach.mimetype
-                    })
-
-        return production 
-
 class custom_production_stock_available(models.TransientModel):
     
     _inherit = 'mrp.product.produce.line'
