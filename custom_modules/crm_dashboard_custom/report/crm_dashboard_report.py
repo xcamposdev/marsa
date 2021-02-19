@@ -32,7 +32,7 @@ class crm_dashboard_report(models.Model):
 
         return '''
             SELECT ROW_NUMBER() OVER (order by x_crm_id) as id, x_create_date, 1 as x_crm_quantity,
-                    CASE WHEN sum(x_crm_quantity) > 0 THEN 1 ELSE 0 END as x_measurements,
+                    CASE WHEN sum(x_measurements) > 0 THEN 1 ELSE 0 END as x_measurements,
                     CASE WHEN sum(x_production)>0 THEN 1 ELSE 0 END as x_production,
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
                     CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END as x_finished,
@@ -48,6 +48,7 @@ class crm_dashboard_report(models.Model):
                     
                 FROM crm_lead crm INNER JOIN mail_message mm ON crm.id=mm.res_id and mm.model='crm.lead'
                                 INNER JOIN mail_tracking_value mtv ON mm.id=mtv.mail_message_id and mtv.field='stage_id'
+                WHERE crm.active=true
                 ) a 
             GROUP BY x_crm_id, x_create_date
         ''' % (op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
