@@ -59,16 +59,20 @@ class crm_dashboard_report(models.Model):
                 FROM crm_lead crm INNER JOIN mail_message mm ON crm.id=mm.res_id and mm.model='crm.lead'
                                 LEFT JOIN mail_tracking_value mtv ON mm.id=mtv.mail_message_id and mtv.field='stage_id'
                                 LEFT JOIN (SELECT ce.opportunity_id, 
-                                            STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador,
-                                            COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Montador') montador_qty,
-                                            STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador_startdate,
-                                            STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor,
-                                            COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor_qty,
-                                            STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor_startdate
-                                    FROM calendar_event ce INNER JOIN calendar_event_res_partner_rel ce_rel ON ce.id=ce_rel.calendar_event_id
-                                                    INNER JOIN res_partner r_p ON r_p.id=ce_rel.res_partner_id
-                                                    INNER JOIN res_users r_u ON r_u.partner_id=r_p.id and (r_u.x_studio_subtipo='Medidor' or r_u.x_studio_subtipo='Montador')
-                                    Group by ce.opportunity_id) reunion ON reunion.opportunity_id=crm.id
+                                        --STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador,
+                                        MIN(r_p.name) FILTER (WHERE x_studio_subtipo='Montador') montador,
+                                        COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Montador') montador_qty,
+                                        --STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador_startdate,
+                                        MIN(ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador_startdate,
+                                        --STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor,
+                                        MIN(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor,
+                                        COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor_qty,
+                                        MIN(ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor_startdate
+                                        --STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor_startdate
+                                FROM calendar_event ce INNER JOIN calendar_event_res_partner_rel ce_rel ON ce.id=ce_rel.calendar_event_id
+                                                INNER JOIN res_partner r_p ON r_p.id=ce_rel.res_partner_id
+                                                INNER JOIN res_users r_u ON r_u.partner_id=r_p.id and (r_u.x_studio_subtipo='Medidor' or r_u.x_studio_subtipo='Montador')
+                                Group by ce.opportunity_id) reunion ON reunion.opportunity_id=crm.id
             WHERE crm.active=true
             ) a 
             GROUP BY x_crm_id, x_name, x_create_date
