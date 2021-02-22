@@ -23,10 +23,10 @@ class crm_dashboard_report(models.Model):
     x_difference = fields.Integer(string='Diferencia', readonly=True)
     x_montador = fields.Char(string="Montador", readonly=True)
     x_montador_qty = fields.Integer(string="Nº Reuniones Montador", readonly=True)
-    x_montador_startdate = fields.Date(string="Fecha Inicio", readonly=True)
+    x_montador_startdate = fields.Date(string="Fecha Reunion Montador", readonly=True)
     x_medidor = fields.Char(string="Medidor", readonly=True)
     x_medidor_qty = fields.Integer(string="Nº Reuniones Medidor", readonly=True)
-    x_medidor_startdate = fields.Date(string="Fecha Inicio", readonly=True)
+    x_medidor_startdate = fields.Date(string="Fecha Reunion Medidor", readonly=True)
 
     @api.model
     def _query(self):
