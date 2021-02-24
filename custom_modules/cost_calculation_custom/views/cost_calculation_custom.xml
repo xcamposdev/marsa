@@ -21,6 +21,10 @@
         <field name="key">x_producto_2do_viaje</field>
         <field name="value">2º VIAJE</field>
     </record>
+    <record id="x_producto_remates_postventa" model="ir.config_parameter">
+        <field name="key">x_producto_remates_postventa</field>
+        <field name="value">REMATE POSTVENTA</field>
+    </record>
     <record id="x_producto_revision_postventa" model="ir.config_parameter">
         <field name="key">x_producto_revision_postventa</field>
         <field name="value">REVISIÓN POSTVENTA</field>

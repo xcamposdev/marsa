@@ -328,7 +328,7 @@ class cost_calculation_custom_0(models.Model):
             self.x_purchase_medidor_total = purchase_medidor.amount_untaxed
         if(purchase_montador):
             self.x_purchase_montador_total = purchase_montador.amount_untaxed
-    
+
         #Actualizar costos del presupuesto
         if(self.x_studio_obra == 'si'):
             self.x_studio_medicin = 'no'
