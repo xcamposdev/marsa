@@ -30,7 +30,7 @@ class stock_rule_mrp_custom(models.Model):
                 data = list(_data for _data in productions_values_by_company[procurement.company_id.id] \
                     if _data['product_id'] == procurement.product_id.id and procurement.origin in _data['origin'])
                 if data:
-                    data[0]['product_qty'] = int(data[0]['product_qty']) + int(procurement.product_qty)
+                    data[0]['product_qty'] = float(data[0]['product_qty']) + float(procurement.product_qty)
                 else:
                     productions_values_by_company[procurement.company_id.id].append(rule._prepare_mo_vals(*procurement, bom))
             else:
