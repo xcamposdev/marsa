@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="print_comprobacion_incidencias_pdf">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <!-- <t t-set="production_comprobacion_date" t-value="o.x_production_comprobacion_date"/> -->
+
+                <div class="page">
+                    <div class="row">
+                        <div class="col h3 text-center">
+                            <span>COMPROBACIÓN E INCIDENCIAS</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <t t-foreach="docs" t-as="o">                            
+                            <div class="col-6">
+                                <p><label>REF EXPED:</label> <span class="small" t-field="o.x_studio_oportunidad"></span></p>
+                                <p><label>CLIENTE:</label> <span class="small" t-field="o.partner_id"></span></p>
+                                <p>
+                                  <label>DIRECCIÓN:</label> 
+                                    <span class="small" t-field="o.partner_shipping_id.street"></span>
+                                    <t t-if="(o.partner_shipping_id.street and o.partner_shipping_id.zip) or (o.partner_shipping_id.street and o.partner_shipping_id.state_id)">,</t>
+                                    <span class="small" t-field="o.partner_shipping_id.zip"></span>
+                                    <t t-if="o.partner_shipping_id.zip and o.partner_shipping_id.state_id">,</t>
+                                    <span class="small" t-field="o.partner_shipping_id.state_id"></span>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p><label>TIENDA:</label> <span class="small" t-field="o.partner_id.parent_id"></span></p>
+                                <t t-if="o.x_studio_oportunidad">
+                                    <p>
+                                      <label>FECHA:</label> <span class="small" t-field="o.x_studio_oportunidad.x_studio_fecha_montaje_muebles"></span>
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                   <p>
+                                      <label>FECHA:</label> <span class="small" t-esc="time.strftime('%d/%m/%Y')"></span>
+                                   </p>
+                                </t>
+                                <t t-if="o.partner_shipping_id.phone">
+                                  <p><label>TEL:</label> <span class="small" t-field="o.partner_shipping_id.phone"></span></p>
+                                </t>
+                                <t t-else="">
+                                  <p><label>MÓVIL:</label> <span class="small" t-field="o.partner_shipping_id.mobile"></span></p>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                    <div class="row">
+                        <div class="col h5" style="margin:15px 0;padding:5px; border:2px solid #000">
+                            COMPROBACIÓN ANTES DE LA CARGA
+                        </div>                        
+                    </div>
+                    <ul style="margin-bottom:15px">
+                            <li>Recoger albarán y nota de trabajo en oficinas</li>
+                            <li>Revisar buen estado del material antes de la carga</li>
+                            <li>Revisar los siguientes puntos:</li>
+                    </ul>
+                    <div class="row">
+                        <table class="table-lg" name="invoice_line_table" style="border:none; width:100%">
+                            <tbody>
+                                <tr>
+                                    <td width="160px">
+                                      <div style="border:1px solid #000; height:30px; width:150px;margin-bottom:5px;">
+                                      </div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="padding:5px">REVISAR GRUESOS ENCIMERAS</div>
+                                    </td>
+                                </tr>
+                                <tr>    
+                                    <td width="160px">
+                                      <div style="border:1px solid #000; height:30px; width:150px;margin:10px 0;">
+                                      </div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="padding:5px">REVISAR ZÓCALOS, ALTURA Y GRUESOS</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="160px">
+                                      <div  style="border:1px solid #000; height:30px; width:150px;margin:10px 0;">
+                                      </div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="padding:5px">COMPROBAR HUECOS, CENTROS Y MEDIDA</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                   <td width="210px">
+                                      <div  style="border:1px solid #000; height:30px; width:150px;">
+                                      </div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="padding:5px">CADA UNIDAD DE PIEZA DEBE ESTAR ETIQUETADA</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                   <td colspan="2">
+                                      <div style="border:1px solid #000;margin:15px 0;height:90px;padding:5px">
+                                        DEFECTOS Y OBSERVACIONES:
+                                      </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>    
+                    </div>
+                    <div class="row">
+                        <div class="col h5" style="margin:15px 0;padding:5px; border:2px solid #000">
+                            INCIDENCIAS DURANTE EL MONTAJE
+                        </div>                        
+                    </div>
+                    <div class="row">
+                        <table class="table-lg" name="invoice_line_table" style="border:none; width:100%">
+                            <tbody>
+                                <tr>
+                                   <td colspan="2"> 
+                                      <div style="border:1px solid #000;margin-bottom:15px;height:90px;padding:5px">
+                                        INCIDENCIA:
+                                      </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                   <td colspan="2">
+                                      <div style="border:1px solid #000;margin-bottom:15px;height:90px;padding:5px">
+                                        SOLUCIÓN:
+                                      </div>
+                                      <div class="clearfix"></div>
+                                      <div style="border:1px solid #000;border-bottom:none;height:30px;padding:5px; width:40%; margin-top:-45px;float:right;">
+                                        FECHA:
+                                      </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                   <td style="width:50%">
+                                      <div style="border:1px solid #000;border-bottom:none;height:60px;padding:5px">
+                                        ACEPTACIÓN CLIENTE:
+                                      </div>
+                                      <div class="clearfix"></div>
+                                      <div style="border:1px solid #000;border-top:none;height:30px;padding:5px">
+                                        Firma y DNI:
+                                      </div>
+                                    </td>
+                                   <td style="width:50%">
+                                      <div style="border:1px solid #000;border-bottom:none;border-left:none;height:60px;padding:5px">
+                                        MONTADOR:
+                                      </div>
+                                      <div class="clearfix"></div>
+                                      <div style="border:1px solid #000;border-top:none;border-left:none;height:30px;padding:5px">
+                                        Nombre y firma:
+                                      </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>    
+                    </div>
+                </div>    
+            </t>
+        </t>
+    </template>
+</odoo>
