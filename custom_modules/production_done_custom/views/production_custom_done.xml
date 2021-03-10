@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+        <record id="x_crm_etapa_anterior_producida" model="ir.config_parameter">
+            <field name="key">x_crm_etapa_anterior_producida</field>
+            <field name="value">Producción</field>
+        </record>
+        <record id="x_crm_etapa_producida" model="ir.config_parameter">
+            <field name="key">x_crm_etapa_producida</field>
+            <field name="value">Producida</field>
+        </record>
+    </data>
+
+</odoo>
