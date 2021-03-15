@@ -391,6 +391,7 @@ class cost_calculation_custom_0(models.Model):
                         purchase = self.env['purchase.order'].create({
                             'partner_id': partner_id.parent_id.id if partner_id.parent_id else partner_id.id,
                             'origin': self.name,
+                            'x_origin_opportunity': self.x_studio_oportunidad.name if self.x_studio_oportunidad else False,
                             'date_order': self.x_studio_fecha_reunion_medidor if self.x_studio_fecha_reunion_medidor else datetime.now(),
                             'state':'draft'
                         })
@@ -398,6 +399,7 @@ class cost_calculation_custom_0(models.Model):
                         purchase = self.env['purchase.order'].create({
                             'partner_id': partner_id.parent_id.id if partner_id.parent_id else partner_id.id,
                             'origin': self.name,
+                            'x_origin_opportunity': self.x_studio_oportunidad.name if self.x_studio_oportunidad else False,
                             'date_order': self.x_studio_fecha_reunion_montador if self.x_studio_fecha_reunion_montador else datetime.now(),
                             'state':'draft'
                         })

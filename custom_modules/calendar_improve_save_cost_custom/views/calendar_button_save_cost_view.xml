@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="calendar_button_save_cost_custom_view" model="ir.ui.view">
+        <field name="name">view.calendar.button.save.cost.custom</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[1]" position="after">
+                <field name="x_has_montador_partner" invisible="1"/>
+                <button name="save_cost" string="Guardar Costes" type="object" class="oe_right oe_edit_only oe_highlight" attrs="{'invisible': [('x_has_montador_partner', '=', False)]}" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
