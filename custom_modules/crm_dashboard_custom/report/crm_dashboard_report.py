@@ -52,10 +52,10 @@ class crm_dashboard_report(models.Model):
                     STRING_AGG(distinct x_categories,', ') as x_categories
             FROM (
                 SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 1 as x_crm_quantity, 
-                        CASE WHEN mtv.old_value_char='%s' and mtv.new_value_char='%s' THEN 1 ELSE 0 END as x_measurements,
-                        CASE WHEN mtv.new_value_char='%s' THEN 1 ELSE 0 END as x_production,
-                        CASE WHEN mtv.old_value_char='%s' and mtv.new_value_char='%s' THEN 1 ELSE 0 END as x_mounting,
-                        CASE WHEN mtv.new_value_char='%s' THEN 1 ELSE 0 END as x_finished,
+                        CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_measurements,
+                        CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_production,
+                        CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_mounting,
+                        CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_finished,
                         mtv.old_value_char, mtv.new_value_char,
                         reunion.montador as x_montador, reunion.montador_qty as x_montador_qty, reunion.montador_startdate as x_montador_startdate,
                         reunion.medidor as x_medidor, reunion.medidor_qty as x_medidor_qty, reunion.medidor_startdate as x_medidor_startdate,
