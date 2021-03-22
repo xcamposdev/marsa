@@ -40,6 +40,7 @@ class crm_dashboard_report(models.Model):
         op_finished_new = self.env['ir.config_parameter'].sudo().get_param('x_op_finished_new')
 
         return '''
+            Select *, CASE WHEN (x_crm_quantity-x_finished)>0 THEN x_crm_quantity-x_finished ELSE 0 END as x_difference From (
             SELECT ROW_NUMBER() OVER (order by x_crm_id) as id, x_name, MIN(x_partner_id) as x_partner_id,
                     x_create_date, Max(x_crm_quantity) as x_crm_quantity,
                     CASE WHEN sum(x_measurements) > 0 THEN 1 ELSE 0 END as x_measurements,
@@ -47,7 +48,7 @@ class crm_dashboard_report(models.Model):
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
                     CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END as x_finished,
                     --CASE WHEN sum(x_finished)>0 THEN 0 ELSE 1 END as x_difference,
-                    Case WHEN (Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END) > 0 THEN Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END ELSE 0 END as x_difference,
+                    --Case WHEN (Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END) > 0 THEN Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END ELSE 0 END as x_difference,
                     MIN(x_montador) as x_montador, MIN(x_montador_qty) as x_montador_qty, MIN(x_montador_startdate) as x_montador_startdate,
                     MIN(x_medidor) as x_medidor, MIN(x_medidor_qty) as x_medidor_qty, MIN(x_medidor_startdate) as x_medidor_startdate,
                     STRING_AGG(distinct x_categories,', ') as x_categories
@@ -85,7 +86,7 @@ class crm_dashboard_report(models.Model):
                                 LEFT JOIN crm_lead_tag crm_lt ON crm_ltr.tag_id=crm_lt.id
             WHERE crm.active=true
             ) a 
-            GROUP BY x_crm_id, x_name, x_create_date
+            GROUP BY x_crm_id, x_name, x_create_date) as b
         ''' % (op_measurement_old, op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
 
   
