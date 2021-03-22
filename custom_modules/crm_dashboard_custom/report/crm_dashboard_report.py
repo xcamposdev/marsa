@@ -41,7 +41,7 @@ class crm_dashboard_report(models.Model):
 
         return '''
             SELECT ROW_NUMBER() OVER (order by x_crm_id) as id, x_name, MIN(x_partner_id) as x_partner_id,
-                    x_create_date, 1 as x_crm_quantity,
+                    x_create_date, Max(x_crm_quantity) as x_crm_quantity,
                     CASE WHEN sum(x_measurements) > 0 THEN 1 ELSE 0 END as x_measurements,
                     CASE WHEN sum(x_production)>0 THEN 1 ELSE 0 END as x_production,
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
@@ -51,7 +51,9 @@ class crm_dashboard_report(models.Model):
                     MIN(x_medidor) as x_medidor, MIN(x_medidor_qty) as x_medidor_qty, MIN(x_medidor_startdate) as x_medidor_startdate,
                     STRING_AGG(distinct x_categories,', ') as x_categories
             FROM (
-                SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 1 as x_crm_quantity, 
+                SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 
+                        --1 as x_crm_quantity, 
+                        CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_crm_quantity,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_measurements,
                         CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_production,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_mounting,
@@ -83,7 +85,7 @@ class crm_dashboard_report(models.Model):
             WHERE crm.active=true
             ) a 
             GROUP BY x_crm_id, x_name, x_create_date
-        ''' % (op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
+        ''' % (op_measurement_old, op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
 
   
     def init(self):
