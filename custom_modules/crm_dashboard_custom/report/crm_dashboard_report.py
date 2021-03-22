@@ -46,7 +46,8 @@ class crm_dashboard_report(models.Model):
                     CASE WHEN sum(x_production)>0 THEN 1 ELSE 0 END as x_production,
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
                     CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END as x_finished,
-                    CASE WHEN sum(x_finished)>0 THEN 0 ELSE 1 END as x_difference,
+                    --CASE WHEN sum(x_finished)>0 THEN 0 ELSE 1 END as x_difference,
+                    Case WHEN (Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END) > 0 THEN Max(x_crm_quantity) - CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END ELSE 0 END as x_difference,
                     MIN(x_montador) as x_montador, MIN(x_montador_qty) as x_montador_qty, MIN(x_montador_startdate) as x_montador_startdate,
                     MIN(x_medidor) as x_medidor, MIN(x_medidor_qty) as x_medidor_qty, MIN(x_medidor_startdate) as x_medidor_startdate,
                     STRING_AGG(distinct x_categories,', ') as x_categories
