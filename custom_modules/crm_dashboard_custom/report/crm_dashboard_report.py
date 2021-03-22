@@ -45,9 +45,11 @@ class crm_dashboard_report(models.Model):
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
                     CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END as x_finished,
                     CASE WHEN (Max(x_crm_quantity) - (CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END)) > 0 THEN (Max(x_crm_quantity) - (CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END)) ELSE 0 END as x_difference,
-                    ----CASE WHEN sum(x_finished)>0 THEN 0 ELSE 1 END as x_difference,
-                    MIN(x_montador) as x_montador, MAX(x_montador_startdate) as x_montador_startdate,
-                    MIN(x_medidor) as x_medidor, MAX(x_medidor_startdate) as x_medidor_startdate,
+
+                    MIN(x_montador) as x_montador,
+                    Min(x_tracking_value_createdate) FILTER (WHERE old_value_char in (%s) and new_value_char in (%s)) as x_montador_startdate,
+                    MIN(x_medidor) as x_medidor,
+                    Min(x_tracking_value_createdate) FILTER (WHERE old_value_char in (%s) and new_value_char in (%s)) as x_medidor_startdate,
                     STRING_AGG(distinct x_categories,', ') as x_categories
             FROM (
                 SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 
@@ -58,8 +60,7 @@ class crm_dashboard_report(models.Model):
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_mounting,
                         CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_finished,
                         mtv.old_value_char, mtv.new_value_char,
-                        CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN mtv.create_date ELSE null END as x_montador_startdate,
-                        CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN mtv.create_date ELSE null END as x_medidor_startdate,
+                        mtv.create_date as x_tracking_value_createdate,
                         reunion.montador as x_montador,
                         reunion.medidor as x_medidor,
                         crm_lt.name as x_categories
@@ -78,8 +79,8 @@ class crm_dashboard_report(models.Model):
             WHERE crm.active=true
             ) a 
             GROUP BY x_crm_id, x_name, x_create_date
-        ''' % (op_measurement_old, op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new, \
-                op_measurement_old, op_measurement_new, op_mounting_old, op_mounting_new)
+        ''' % (op_measurement_old, op_measurement_new, op_mounting_old, op_mounting_new, \
+            op_measurement_old, op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
 
   
     def init(self):
