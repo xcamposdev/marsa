@@ -60,8 +60,8 @@ class crm_dashboard_report(models.Model):
                         mtv.old_value_char, mtv.new_value_char,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN mtv.create_date ELSE null END as x_montador_startdate,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN mtv.create_date ELSE null END as x_medidor_startdate,
-                        reunion.montador as x_montador, reunion.montador_startdate as x_montador_startdate,
-                        reunion.medidor as x_medidor, reunion.medidor_startdate as x_medidor_startdate,
+                        reunion.montador as x_montador,
+                        reunion.medidor as x_medidor,
                         crm_lt.name as x_categories
                     
                 FROM crm_lead crm INNER JOIN mail_message mm ON crm.id=mm.res_id and mm.model='crm.lead'
