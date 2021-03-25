@@ -30,7 +30,7 @@ class CalendarImproveSaveCost(models.Model):
             if order_sales:
                 for order in order_sales:
                     order.get_obtener_datos()
-
+                    order.save_cost()
 
     def get_sale_id_by_oportunity(self, opportunity):
         sale_order_ids = []

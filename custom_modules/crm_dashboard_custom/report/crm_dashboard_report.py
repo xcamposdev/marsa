@@ -23,10 +23,8 @@ class crm_dashboard_report(models.Model):
     x_finished = fields.Integer(string='Ventas Finalizadas', readonly=True)
     x_difference = fields.Integer(string='Diferencia', readonly=True)
     x_montador = fields.Char(string="Montador", readonly=True)
-    x_montador_qty = fields.Integer(string="Nº Reuniones Montador", readonly=True)
     x_montador_startdate = fields.Date(string="Fecha Reunion Montador", readonly=True)
     x_medidor = fields.Char(string="Medidor", readonly=True)
-    x_medidor_qty = fields.Integer(string="Nº Reuniones Medidor", readonly=True)
     x_medidor_startdate = fields.Date(string="Fecha Reunion Medidor", readonly=True)
     x_categories = fields.Char(string="Categorías", readonly=True, invisible=True)
 
@@ -41,39 +39,37 @@ class crm_dashboard_report(models.Model):
 
         return '''
             SELECT ROW_NUMBER() OVER (order by x_crm_id) as id, x_name, MIN(x_partner_id) as x_partner_id,
-                    x_create_date, 1 as x_crm_quantity,
+                    x_create_date, Max(x_crm_quantity) as x_crm_quantity,
                     CASE WHEN sum(x_measurements) > 0 THEN 1 ELSE 0 END as x_measurements,
                     CASE WHEN sum(x_production)>0 THEN 1 ELSE 0 END as x_production,
                     CASE WHEN sum(x_mounting)>0 THEN 1 ELSE 0 END as x_mounting,
                     CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END as x_finished,
-                    CASE WHEN sum(x_finished)>0 THEN 0 ELSE 1 END as x_difference,
-                    MIN(x_montador) as x_montador, MIN(x_montador_qty) as x_montador_qty, MIN(x_montador_startdate) as x_montador_startdate,
-                    MIN(x_medidor) as x_medidor, MIN(x_medidor_qty) as x_medidor_qty, MIN(x_medidor_startdate) as x_medidor_startdate,
+                    CASE WHEN (Max(x_crm_quantity) - (CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END)) > 0 THEN (Max(x_crm_quantity) - (CASE WHEN sum(x_finished)>0 THEN 1 ELSE 0 END)) ELSE 0 END as x_difference,
+
+                    MIN(x_montador) as x_montador,
+                    Min(x_tracking_value_createdate) FILTER (WHERE old_value_char in (%s) and new_value_char in (%s)) as x_medidor_startdate,
+                    MIN(x_medidor) as x_medidor,
+                    Min(x_tracking_value_createdate) FILTER (WHERE old_value_char in (%s) and new_value_char in (%s)) as x_montador_startdate,
                     STRING_AGG(distinct x_categories,', ') as x_categories
             FROM (
-                SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 1 as x_crm_quantity, 
+                SELECT crm.id as x_crm_id, crm.name x_name, crm.partner_id x_partner_id, crm.create_date as x_create_date, 
+                        --1 as x_crm_quantity, 
+                        CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_crm_quantity,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_measurements,
                         CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_production,
                         CASE WHEN mtv.old_value_char in (%s) and mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_mounting,
                         CASE WHEN mtv.new_value_char in (%s) THEN 1 ELSE 0 END as x_finished,
                         mtv.old_value_char, mtv.new_value_char,
-                        reunion.montador as x_montador, reunion.montador_qty as x_montador_qty, reunion.montador_startdate as x_montador_startdate,
-                        reunion.medidor as x_medidor, reunion.medidor_qty as x_medidor_qty, reunion.medidor_startdate as x_medidor_startdate,
+                        mtv.create_date as x_tracking_value_createdate,
+                        reunion.montador as x_montador,
+                        reunion.medidor as x_medidor,
                         crm_lt.name as x_categories
                     
                 FROM crm_lead crm INNER JOIN mail_message mm ON crm.id=mm.res_id and mm.model='crm.lead'
                                 LEFT JOIN mail_tracking_value mtv ON mm.id=mtv.mail_message_id and mtv.field='stage_id'
                                 LEFT JOIN (SELECT ce.opportunity_id, 
-                                        --STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador,
                                         MIN(r_p.name) FILTER (WHERE x_studio_subtipo='Montador') montador,
-                                        COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Montador') montador_qty,
-                                        --STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador_startdate,
-                                        MIN(ce.start_datetime) FILTER (WHERE x_studio_subtipo='Montador') montador_startdate,
-                                        --STRING_AGG(r_p.name,', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor,
-                                        MIN(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor,
-                                        COUNT(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor_qty,
-                                        MIN(ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor_startdate
-                                        --STRING_AGG(CAST(ce.start_datetime AS VARCHAR),', ' order by ce.start_datetime) FILTER (WHERE x_studio_subtipo='Medidor') medidor_startdate
+                                        MIN(r_p.name) FILTER (WHERE x_studio_subtipo='Medidor') medidor
                                     FROM calendar_event ce INNER JOIN calendar_event_res_partner_rel ce_rel ON ce.id=ce_rel.calendar_event_id
                                                 INNER JOIN res_partner r_p ON r_p.id=ce_rel.res_partner_id
                                                 INNER JOIN res_users r_u ON r_u.partner_id=r_p.id and (r_u.x_studio_subtipo='Medidor' or r_u.x_studio_subtipo='Montador')
@@ -83,7 +79,8 @@ class crm_dashboard_report(models.Model):
             WHERE crm.active=true
             ) a 
             GROUP BY x_crm_id, x_name, x_create_date
-        ''' % (op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
+        ''' % (op_measurement_old, op_measurement_new, op_mounting_old, op_mounting_new, \
+            op_measurement_old, op_measurement_old, op_measurement_new, op_production_new, op_mounting_old, op_mounting_new, op_finished_new)
 
   
     def init(self):

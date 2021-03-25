@@ -372,6 +372,7 @@ class calculator_custom_0(models.Model):
                                 if(product_list_item.x_studio_presupuestar_a.id not in clients):
                                     clients.append(product_list_item.x_studio_presupuestar_a.id)
 
+        has_ikea = False
         # save custom
         for client in clients:
             _record_vals = copy.deepcopy(vals)
@@ -395,6 +396,8 @@ class calculator_custom_0(models.Model):
                 else:
                     _record_vals['name'] = self.env['ir.sequence'].next_by_code('sale.order', sequence_date=seq_date) or _('New')
 
+                _record_vals['x_studio_medicin'] = 'si'
+                _record_vals['x_studio_montaje'] = 'si'
                 # Makes sure partner_invoice_id', 'partner_shipping_id' and 'pricelist_id' are defined
                 if any(f not in _record_vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id']):
                     partner = self.env['res.partner'].browse(client)
@@ -419,6 +422,7 @@ class calculator_custom_0(models.Model):
                 for i in line_remove:
                     del _record_vals['order_line'][i]
                 super(calculator_custom_0, self).create(_record_vals)
+                has_ikea = True
 
         #save principal
         if vals.get('name', _('New')) == _('New'):
@@ -439,6 +443,8 @@ class calculator_custom_0(models.Model):
             vals['partner_shipping_id'] = vals.setdefault('partner_shipping_id', addr['delivery'])
             vals['pricelist_id'] = vals.setdefault('pricelist_id', partner.property_product_pricelist and partner.property_product_pricelist.id)
 
+        vals['x_studio_medicin'] = 'no' if has_ikea else 'si'
+        vals['x_studio_montaje'] = 'no' if has_ikea else 'si'
         main_line_remove.reverse()
         for i in main_line_remove:
             del vals['order_line'][i]
