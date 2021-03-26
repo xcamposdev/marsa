@@ -452,4 +452,4 @@ class cost_calculation_custom_0(models.Model):
         for record in self:
             super(cost_calculation_custom_0, record)._product_margin()
             calculate_margin = record.margin - record.x_purchase_medidor_total - record.x_purchase_montador_total
-            record.margin = calculate_margin if calculate_margin > 0 else 0
+            record.margin = calculate_margin
